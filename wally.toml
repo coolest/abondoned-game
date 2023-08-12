@@ -1,0 +1,21 @@
+[package]
+name = "thezi/ocean-game"
+version = "0.1.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+
+private = true
+
+[dependencies]
+react = "core-packages/react@17.0.1-rc.19"
+roact-spring = "chriscerie/react-spring@1.1.5"
+react-roblox = "core-packages/react-roblox@17.0.1-rc.19"
+goodsignal = "stravant/goodsignal@0.2.1"
+flipper = "reselim/flipper@2.0.0"
+red = "uncontained0/red@1.2.2"
+
+[dev-dependencies]
+lapis = "nezuo/lapis@0.2.1"
+
+[place]
+shared-packages = "game.ReplicatedStorage.Packages"

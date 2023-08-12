@@ -1,0 +1,27 @@
+{
+  "name": "flipper",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Flipper": {
+        "$path": "../default.project.json"
+      },
+      "TestEZ": {
+        "$path": "testez"
+      }
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "demo": {
+          "$path": "demo.client.lua"
+        },
+        "testRunner": {
+          "$path": "runner.client.lua"
+        }
+      }
+    }
+  }
+}
