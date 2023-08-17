@@ -35,17 +35,16 @@ function SubmarineController.Start()
 end
 
 function SubmarineController.OnCharacterAdded(character)
-    local root = character:WaitForChild("HumanoidRootPart", 3)
-    assert(root, "Could not find root part for character!")
+    
+end
 
+function SubmarineController.addSubmarine()
     local startPosition = root.Position - root.CFrame.LookVector * 10
 
     local sub = SubmarineController.newSubmarine();
     sub.Name = "__submarine"
     sub.CFrame = CFrame.lookAt(startPosition, root.Position)
     sub.Parent = character;
-
-    SubmarineController.drawChain(character, sub)
 end
 
 function SubmarineController.drawChain(character, submarine)
