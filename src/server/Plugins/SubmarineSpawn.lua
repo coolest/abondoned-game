@@ -50,6 +50,7 @@ local function drawChains(submarine, character, amount)
 
         for i = 1, amount do
             local chain = newChain(i%2 == 0 and "Even" or "Odd")
+            chain.CFrame = (root.CFrame + look*i/10) * CFrame.Angles(math.pi/2, 0, 0)
 
             local constraint = Instance.new("BallSocketConstraint")
             constraint.Attachment0 = chains:FindFirstChild(tostring(i-1)).Top
