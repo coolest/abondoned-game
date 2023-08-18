@@ -1,14 +1,21 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
+
+local Plugins = ServerScriptService.Plugins
+local SubmarineSpawn = require(Plugins.SubmarineSpawn)
 
 local Packages = ReplicatedStorage.Packages
 local Red = require(Packages.red)
 
-local Net = Red.Server("Slot")
+local Net = Red.Server("Slot", {"Join", "Leave", "Start"})
 
 local SlotService = {}
 
 function SlotService.Init()
+    Net:On("Leave", SlotService.tryLeave)
+    Net:On("Start", SlotService.tryStart)
+
     SlotService._state = {
         slots = {
             {}, {}, {}, {}
@@ -76,6 +83,10 @@ function SlotService.playerIsInSlot(player)
 end
 
 function SlotService.updateSlotCount(slot)
+    if type(slot) == "string" then
+        slot = tonumber(slot)
+    end
+
     local slotRoot = SlotService.getSlotRoot(slot)
     local counterLabel = slotRoot:FindFirstChild("CounterLabel", true)
     local playersLabel = slotRoot:FindFirstChild("PlayersLabel", true)
@@ -102,6 +113,16 @@ function SlotService.placeCharacterInSlot(charRoot, slot)
     charRoot.CFrame = slotRoot.CFrame - slotRoot.CFrame.LookVector * 5
 end
 
+function SlotService.removeCharacterFromSlot(charRoot, slot)
+    assert(charRoot and charRoot:IsA("Instance") and charRoot:IsA("BasePart"), "Need to provide a valid root of type BasePart for character")
+    if type(slot) == "number" then
+        slot = tostring(slot)
+    end
+
+    local slotRoot = SlotService.getSlotRoot(slot)
+    charRoot.CFrame = slotRoot.CFrame + slotRoot.CFrame.LookVector * 10
+end
+
 function SlotService.tryJoin(player, slot)
     assert(player and typeof(player) == "Instance" and player:IsA("Player"), "Need to pass player into the 1st argument.")
     assert(slot and type(slot) == "number", "Slot provided needs to be a number (2nd argument).")
@@ -119,21 +140,48 @@ function SlotService.tryJoin(player, slot)
     if root then
         SlotService.placeCharacterInSlot(root, slot)
         SlotService.updateSlotCount(slot)
+
+        Net:Fire(player, "Join")
     end
 
     return true;
 end
 
-function SlotService.tryLeave(player, slot)
+function SlotService.tryLeave(player)
     assert(player and typeof(player) == "Instance" and player:IsA("Player"), "Need to pass player into the 1st argument.")
-    assert(slot and type(slot) == "number", "Slot provided needs to be a number (2nd argument).")
 
     local slots = SlotService.getSlots()
     local slotNumber = SlotService.getPlayerSlot(player)
-    if slotNumber == slot then
-        table.remove(slots[slot], table.find(slots[slot], player))
+    if slotNumber then
+        local slot = tostring(slotNumber)
+        local character = player.Character
+        local root = character and character:FindFirstChild("HumanoidRootPart")
+        if root then
+            SlotService.removeCharacterFromSlot(root, slot)
+        end
+
+        table.remove(slots[slotNumber], table.find(slots[slotNumber], player))
+
+        SlotService.updateSlotCount(slotNumber)
+
+        return true;
     else
         return false;
+    end
+end
+
+function SlotService.tryStart(player)
+    assert(player and typeof(player) == "Instance" and player:IsA("Player"), "Need to pass player into the 1st argument.")
+
+    local slots = SlotService.getSlots()
+    local slotNumber = SlotService.getPlayerSlot(player)
+    if slotNumber then
+        local players = table.clone(slots[slotNumber])
+        table.clear(slots[slotNumber])
+
+        SubmarineSpawn(players)
+        SlotService.updateSlotCount(slotNumber)
+        Net:FireList(players, "Start")
     end
 end
 

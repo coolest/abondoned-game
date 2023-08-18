@@ -13,8 +13,8 @@ return CharacterAdded.Signal:Connect(function(character)
         return;
     end
 
-    root.CustomPhysicalProperties = PhysicalProperties.new(17, 0.5, 0.3)
-    humanoid.JumpPower = 75;
+    root.CustomPhysicalProperties = PhysicalProperties.new(25, 0.5, 0.3)
+    humanoid.JumpPower = 65;
 
     --[[
     local db = true;

@@ -1,9 +1,13 @@
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Red = require(ReplicatedStorage.Packages.red)
 local LoadingNet = Red.Client("Load")
 
 local PlayerScripts = script.Parent
+
+local Player = Players.LocalPlayer
+Player:WaitForChild("PlayerGui"):WaitForChild("Gui")
 
 --
 
