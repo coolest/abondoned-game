@@ -90,7 +90,8 @@ return function(players)
     sub.Name = "__submarine"
     sub.CFrame = cframe
     sub.Parent = container
-
+    sub:SetNetworkOwner(nil)
+    
     local characters = {}
     for _, player in ipairs(players) do
         local character = player.Character
