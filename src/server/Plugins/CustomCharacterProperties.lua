@@ -14,28 +14,13 @@ return CharacterAdded.Signal:Connect(function(character)
     end
 
     root.CustomPhysicalProperties = PhysicalProperties.new(35, 0.5, 0.3)
-    humanoid.JumpPower = 65;
 
-    --[[
-    local db = true;
-    humanoid:GetPropertyChangedSignal("Jump"):Connect(function()
-        if not db then
+    humanoid.JumpPower = 0;
+    humanoid.Jumping:Connect(function(isJumping)
+        if not isJumping then
             return;
         end
 
-        db = false;
-        humanoid.JumpPower = 0;
-
-        local isJumping = humanoid.Jump
-        if isJumping then
-            local velocity = root.CFrame.LookVector * 10 + root.CFrame.UpVector * 30
-            root.AssemblyLinearVelocity += velocity*3
-        end
-
-        task.wait(8/10)
-
-        db = true;
-        humanoid.JumpPower = 50;
+        root.AssemblyLinearVelocity += Vector3.new(0, 55, 0)
     end)
-    ]]
 end)
