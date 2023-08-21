@@ -2,8 +2,8 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local Plugins = ServerScriptService.Plugins
-local SubmarineSpawn = require(Plugins.SubmarineSpawn)
+local Services = ServerScriptService.Services
+local SubmarineService = require(Services.SubmarineService)
 
 local Packages = ReplicatedStorage.Packages
 local Red = require(Packages.red)
@@ -179,8 +179,9 @@ function SlotService.tryStart(player)
         local players = table.clone(slots[slotNumber])
         table.clear(slots[slotNumber])
 
-        SubmarineSpawn(players)
+        SubmarineService.buildSystem(players)
         SlotService.updateSlotCount(slotNumber)
+
         Net:FireList(players, "Start")
     end
 end
