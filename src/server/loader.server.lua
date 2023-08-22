@@ -1,6 +1,10 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
+local ServerLoaded = Instance.new("BindableEvent")
+ServerLoaded.Name = "SERVER_LOADED"
+ServerLoaded.Parent = ReplicatedStorage
+
 --
 
 for _, src in ipairs(ServerScriptService.Plugins:GetChildren()) do
@@ -50,3 +54,5 @@ for _, event in ipairs(Events) do
         error(string.format("Issue starting event, %s:\n%s", event.Name, res))
     end
 end
+
+ServerLoaded:Fire()
