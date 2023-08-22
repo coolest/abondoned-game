@@ -7,26 +7,22 @@ local IS_SERVER = RunService:IsServer()
 local Packages = ReplicatedStorage.Packages
 
 local GoodSignal = require(Packages.goodsignal)
-local Red = require(Packages.red)
 
-local loaded = true;
+local loaded = false;
 local signal = GoodSignal.new()
 
-if IS_SERVER then
-    loaded = false;
+local loadedSignal = IS_SERVER
+    and ReplicatedStorage:FindFirstChild("SERVER_LOADED")
+    or  ReplicatedStorage:FindFirstChild("CLIENT_LOADED")
 
-    local LoadingNet = Red.Server("Load", {"Complete"})
-
-    LoadingNet:On("Complete", function(player)
-        loaded = true;
-    end)
-end
-
+loadedSignal.Event:Connect(function()
+    loaded = true;
+end)
 
 local function waitForLoading(character)
     if not loaded then
         repeat
-            RunService.Heartbeat:Wait()
+            RunService.PostSimulation:Wait()
         until loaded
     end
     
@@ -34,6 +30,11 @@ local function waitForLoading(character)
 end
 
 local function onPlayerAdded(player)
+    local character = player.Character
+    if character then
+        task.spawn(waitForLoading, character)
+    end
+
     player.CharacterAdded:Connect(waitForLoading)
 end
 
