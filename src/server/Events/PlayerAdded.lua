@@ -5,12 +5,14 @@ local RunService = game:GetService("RunService")
 local Packages = ReplicatedStorage.Packages
 
 local GoodSignal = require(Packages.goodsignal)
-local Red = require(Packages.red)
-
-local LoadingNet = Red.Server("Load", {"Complete"})
 
 local signal = GoodSignal.new()
 local loaded = false;
+
+local loadedEvent = ReplicatedStorage:FindFirstChild("SERVER_LOADED")
+loadedEvent.Event:Connect(function()
+    loaded = true;
+end)
 
 local function waitForLoading(player)
     if not loaded then
@@ -30,10 +32,6 @@ local function onSystemsStarted()
         task.spawn(waitForLoading, player)
     end
 end
-
-LoadingNet:On("Complete", function(player)
-    loaded = true;
-end)
 
 return {
     Signal = signal,
