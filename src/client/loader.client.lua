@@ -1,13 +1,14 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Red = require(ReplicatedStorage.Packages.red)
-local LoadingNet = Red.Client("Load")
-
 local PlayerScripts = script.Parent
 
 local Player = Players.LocalPlayer
 Player:WaitForChild("PlayerGui"):WaitForChild("Gui")
+
+local LoadedSignal = Instance.new("BindableEvent")
+LoadedSignal.Name = "CLIENT_LOADED"
+LoadedSignal.Parent = ReplicatedStorage
 
 --
 
@@ -78,4 +79,4 @@ end
 
 print("Loaded events in: ", os.clock()-start, "s")
 
-LoadingNet:Fire("Complete")
+LoadedSignal:Fire()
