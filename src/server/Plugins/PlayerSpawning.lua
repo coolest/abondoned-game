@@ -16,6 +16,9 @@ local function spawnCharacter(character)
     if not workspace:WaitForChild(character.Name, 5) then
         return;
     end
+    if RunService:IsStudio() then
+        return;
+    end
 
     local player = Players:GetPlayerFromCharacter(character)
     local charRoot = character:FindFirstChild("HumanoidRootPart")
