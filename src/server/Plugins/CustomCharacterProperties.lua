@@ -15,7 +15,7 @@ return CharacterAdded.Signal:Connect(function(character)
 
     root.CustomPhysicalProperties = PhysicalProperties.new(35, 0.5, 0.3)
 
-    humanoid.JumpPower = 0;
+    humanoid.JumpPower = 100;
     humanoid.Jumping:Connect(function(isJumping)
         if not isJumping then
             return;

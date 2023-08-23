@@ -48,8 +48,8 @@ function SystemsService.Start()
 
             local dist = (submarine.Position - root.Position).Magnitude
             local maxDist = SystemsHelper.getMaximumLengthAllowed(system)
-            local multiplier = math.clamp((dist-maxDist).Magnitude, 1, 100)
-            if (dist-maxDist).Magnitude < 1 then
+            local multiplier = math.clamp(dist-maxDist, 1, 100)
+            if (dist-maxDist) < 1 then
                 velocity += root.AssemblyLinearVelocity * multiplier
             end
         end
