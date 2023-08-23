@@ -70,7 +70,7 @@ function SystemsController.Start()
 
     RunService:BindToRenderStep("FakeChainForce", Enum.RenderPriority.First.Value, function(dt)
         local character = Player.Character
-        if not character then
+        if not character or character:GetAttribute("Ragdoll") then
             return;
         end
 

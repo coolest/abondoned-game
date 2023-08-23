@@ -8,6 +8,8 @@ local Red = require(Packages.red)
 
 local Net = Red.Client("Ragdoll")
 
+local Camera = workspace.CurrentCamera
+
 local function changeHumanoidState(state)
     local character = Player.Character
     local humanoid = character and character:FindFirstChildOfClass("Humanoid")
@@ -21,6 +23,8 @@ end
 
 Net:On("On", function()
     changeHumanoidState(Enum.HumanoidStateType.Physics)
+
+
 end)
 
 Net:On("Off", function()

@@ -50,7 +50,7 @@ function SystemsService.Start()
             local maxDist = SystemsHelper.getMaximumLengthAllowed(system)
             local multiplier = math.clamp(dist-maxDist, 1, 100)
             if (dist-maxDist) < 1 then
-                velocity += root.AssemblyLinearVelocity * multiplier
+                velocity += root.AssemblyLinearVelocity * multiplier * 4/5
             end
         end
 

@@ -7,10 +7,11 @@ local CollisionService = {}
 
 function CollisionService.Init()
     PhysicsService:RegisterCollisionGroup("Characters")
-    PhysicsService:RegisterCollisionGroup("Chains")
+    PhysicsService:RegisterCollisionGroup("Ragdoll")
+    PhysicsService:RegisterCollisionGroup("Submarine")
 
-    PhysicsService:CollisionGroupSetCollidable("Characters", "Chains", false)
-    PhysicsService:CollisionGroupSetCollidable("Chains", "Chains", false)
+    PhysicsService:CollisionGroupSetCollidable("Characters", "Ragdoll", false)
+    PhysicsService:CollisionGroupSetCollidable("Submarine", "Ragdoll", false)
 
     local addToCharactersCG = CollisionService.addToCollisionGroup("Characters")
     CharacterAdded.Signal:Connect(addToCharactersCG)

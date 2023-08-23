@@ -23,4 +23,8 @@ function SystemsHelper.getMaximumLengthAllowed(system)
     return 15 + #(characters:GetChildren())
 end
 
+function SystemsHelper.getSystemFromCharacter(character)
+    return character.Parent.Name == "__characters" and character.Parent.Parent
+end
+
 return SystemsHelper

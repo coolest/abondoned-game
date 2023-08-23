@@ -1,6 +1,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local ServerScriptService = game:GetService("ServerScriptService")
 
 local Events = ReplicatedStorage.Events
 local CharacterAdded = require(Events.CharacterAdded)
@@ -8,10 +9,20 @@ local CharacterAdded = require(Events.CharacterAdded)
 local Packages = ReplicatedStorage.Packages
 local Red = require(Packages.red)
 
+local Helpers = ReplicatedStorage.Helpers
+local SystemsHelper = require(Helpers.SystemsHelper)
+
+local Services = ServerScriptService.Services
+local CollisionService = require(Services.CollisionService)
+
+local addToCharacters = CollisionService.addToCollisionGroup("Characters")
+local addToRagdoll = CollisionService.addToCollisionGroup("Ragdoll")
+
 local Net = Red.Server("Ragdoll", {"On", "Off"})
 
 local FALLING_VALUE_UNTIL_RAGDOLL = -50;
 
+local whitelist = {"Head", "RightLowerArm", "LeftLowerArm", "LeftHand", "RightHand", "LeftLowerLeg", "RightLowerArm", "LeftFoot", "RightFoot", "LowerTorso", "UpperTorso"}
 local function setUpRagdoll(character)
     for _, part in ipairs(character:GetChildren()) do
         if not part:IsA("BasePart") then
@@ -22,9 +33,9 @@ local function setUpRagdoll(character)
         if not motor then
             continue
         end
-        
-        local isHead = part.Name == "Head"
-        if isHead then
+
+        local shouldWeld = table.find(whitelist, part.Name)
+        if shouldWeld then
             local weld = Instance.new("WeldConstraint")
             weld.Enabled = false;
             weld.Name = "__ragdoll-id"
@@ -71,21 +82,40 @@ end
 
 local function toggle(character, ragdollEnabled)
     local motors, constraints = getRagdollComponents(character:GetDescendants())
-
     for _, motor in ipairs(motors) do
         motor.Enabled = not ragdollEnabled
     end
-
     for _, constraint in ipairs(constraints) do
         constraint.Enabled = ragdollEnabled
+    end
+
+    character:SetAttribute("Ragdoll", ragdollEnabled)
+    character:SetAttribute("ragdoll_inital", nil)
+
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid.PlatformStand = ragdollEnabled
+        humanoid.AutoRotate = not ragdollEnabled;
+    end
+
+    if ragdollEnabled then
+        addToRagdoll(character)
+    else
+        addToCharacters(character)
     end
 end
 
 local function ragdollOn(character)
     toggle(character, true)
 
-    character:SetAttribute("Ragdoll", true)
-    character:SetAttribute("ragdoll_inital", nil)
+    local root = character:FindFirstChild("HumanoidRootPart")
+    if root then
+        local system = SystemsHelper.getSystemFromCharacter(character)
+        local submarine = SystemsHelper.getSubmarineInSystem(system)
+        local look = CFrame.lookAt(root.Position, submarine.Position).LookVector
+
+        root.AssemblyLinearVelocity -= look * 100
+    end
 
     local player = Players:GetPlayerFromCharacter(character)
     Net:Fire(player, "On")
@@ -93,9 +123,6 @@ end
 
 local function ragdollOff(character)
     toggle(character, false)
-
-    character:SetAttribute("Ragdoll", nil)
-    character:SetAttribute("ragdoll_inital", nil)
 
     local player = Players:GetPlayerFromCharacter(character)
     Net:Fire(player, "Off")
@@ -106,7 +133,7 @@ RunService.PostSimulation:Connect(function()
     local characters = {}
     for _, player in ipairs(players) do
         local character = player.Character
-        if character then
+        if character and SystemsHelper.getSystemFromCharacter(character) then
             table.insert(characters, character)
         end
     end
