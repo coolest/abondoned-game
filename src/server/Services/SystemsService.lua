@@ -26,6 +26,12 @@ end
     Service Start
 ]]
 
+--[[
+
+    See what happens when you remove Y velocity from the submarine or dampen it a lot
+
+]]
+
 local SystemsService = {}
 
 function SystemsService.Init()

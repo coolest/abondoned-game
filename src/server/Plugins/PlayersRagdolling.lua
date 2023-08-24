@@ -20,7 +20,7 @@ local addToRagdoll = CollisionService.addToCollisionGroup("Ragdoll")
 
 local Net = Red.Server("Ragdoll", {"On", "Off"})
 
-local FALLING_VALUE_UNTIL_RAGDOLL = -50;
+local FALLING_VALUE_UNTIL_RAGDOLL = -125;
 
 local whitelist = {"Head", "RightLowerArm", "LeftLowerArm", "LeftHand", "RightHand", "LeftLowerLeg", "RightLowerArm", "LeftFoot", "RightFoot", "LowerTorso", "UpperTorso"}
 local function setUpRagdoll(character)

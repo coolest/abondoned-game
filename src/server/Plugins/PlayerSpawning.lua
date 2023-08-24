@@ -16,9 +16,6 @@ local function spawnCharacter(character)
     if not workspace:WaitForChild(character.Name, 5) then
         return;
     end
-    if RunService:IsStudio() then
-        return;
-    end
 
     local player = Players:GetPlayerFromCharacter(character)
     local charRoot = character:FindFirstChild("HumanoidRootPart")
@@ -36,11 +33,16 @@ local function spawnCharacter(character)
         local pos, size = spawnPart.Position, spawnPart.Size
         local x_min, x_max, z_min, z_max = pos.X-size.X/2, pos.X+size.X/2, pos.Z-size.Z/2, pos.Z+size.Z/2
 
-        charRoot.CFrame = CFrame.new(
-            math.random(x_min, x_max),
-            pos.Y + 5,
-            math.random(z_min, z_max)
-        );
+        if RunService:IsStudio() then
+            local studioSpawn = workspace:FindFirstChild("StudioSpawn")
+            charRoot.CFrame = studioSpawn
+        else
+            charRoot.CFrame = CFrame.new(
+                math.random(x_min, x_max),
+                pos.Y + 5,
+                math.random(z_min, z_max)
+            );
+        end
     end
 end
 
