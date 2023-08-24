@@ -49,8 +49,13 @@ function SystemsService.Start()
             local dist = (submarine.Position - root.Position).Magnitude
             local maxDist = SystemsHelper.getMaximumLengthAllowed(system)
             local multiplier = math.clamp(dist-maxDist, 1, 100)
-            if (dist-maxDist) < 1 then
-                velocity += root.AssemblyLinearVelocity * multiplier * 4/5
+            local dampeningValue = math.clamp(math.abs(maxDist-dist), 1, math.huge)
+
+            if dampeningValue < 3 then
+                velocity += root.AssemblyLinearVelocity * multiplier / dampeningValue
+            elseif (dist-maxDist) > 1 then
+                local look = CFrame.lookAt(submarine.Position, root.Position).LookVector
+                velocity += look*15 * multiplier/2
             end
         end
 

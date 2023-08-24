@@ -5,6 +5,9 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Services = ServerScriptService.Services
 local SystemsService = require(Services.SystemsService)
 
+local Helpers = ReplicatedStorage.Helpers
+local SystemsHelper = require(Helpers.SystemsHelper)
+
 local Packages = ReplicatedStorage.Packages
 local Red = require(Packages.red)
 
@@ -30,6 +33,10 @@ function SlotService.Init()
             local player = character and Players:GetPlayerFromCharacter(character)
             if not player then
                 return;
+            end
+
+            if SystemsHelper.getSystemFromCharacter(character) then
+                return
             end
 
             SlotService.tryJoin(player, slot)
