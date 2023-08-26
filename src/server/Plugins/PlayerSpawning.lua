@@ -35,7 +35,7 @@ local function spawnCharacter(character)
 
         if RunService:IsStudio() then
             local studioSpawn = workspace:FindFirstChild("StudioSpawn")
-            charRoot.CFrame = studioSpawn
+            charRoot.CFrame = studioSpawn.CFrame
         else
             charRoot.CFrame = CFrame.new(
                 math.random(x_min, x_max),

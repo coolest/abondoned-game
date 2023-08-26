@@ -26,12 +26,6 @@ end
     Service Start
 ]]
 
---[[
-
-    See what happens when you remove Y velocity from the submarine or dampen it a lot
-
-]]
-
 local SystemsService = {}
 
 function SystemsService.Init()
@@ -58,7 +52,8 @@ function SystemsService.Start()
             local dampeningValue = math.clamp(math.abs(maxDist-dist), 1, math.huge)
 
             if dampeningValue < 3 then
-                velocity += root.AssemblyLinearVelocity * multiplier / dampeningValue
+                local assemblyVelocity = CFrame.lookAt(submarine.Position, root.Position).LookVector * root.AssemblyLinearVelocity.Magnitude
+                velocity += Vector3.new(assemblyVelocity.X, assemblyVelocity.Y/5, assemblyVelocity.Z) * multiplier / dampeningValue
             elseif (dist-maxDist) > 1 then
                 local look = CFrame.lookAt(submarine.Position, root.Position).LookVector
                 velocity += look*15 * multiplier/2
