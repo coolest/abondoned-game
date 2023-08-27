@@ -1,18 +1,23 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local ServerScriptService = game:GetService("ServerScriptService")
 
 local Helpers = ReplicatedStorage.Helpers
 local SystemsHelper = require(Helpers.SystemsHelper)
+
+local Plugins = ServerScriptService.Plugins
+local Documents = require(Plugins.Documents)
 
 local Packages = ReplicatedStorage.Packages
 local Red = require(Packages.red)
 
 local Net = Red.Server("Systems", {"New"})
 
-local Area = workspace.Spawns["1"]
+local function getSpawnCFrameFromCheckpoint(checkpoint)
+    checkpoint = workspace.Checkpoints:FindFirstChild("Checkpoint" .. tostring(checkpoint))
+    assert(checkpoint, "Could not find checkpoint in workspace.Checkpoints")
 
-local function getCFrameInArea()
-    local pos, size = Area.Position, Area.Size
+    local pos, size = checkpoint.Position, checkpoint.Size
     local x_min, x_max, z_min, z_max = pos.X-size.X/2, pos.X+size.X/2, pos.Z-size.Z/2, pos.Z+size.Z/2
 
     return CFrame.new(
@@ -127,6 +132,17 @@ function SystemsService.buildSystem(players)
         name = name .. "-" .. player.Name
     end
 
+    local lowestCheckpoint = math.huge;
+    for _, player in ipairs(players) do
+        local document = Documents[player]
+        local data = document:read()
+        if data.checkpoint < lowestCheckpoint then
+            lowestCheckpoint = data.checkpoint
+        end
+    end
+
+    local cframe = getSpawnCFrameFromCheckpoint(lowestCheckpoint)
+
     local systemContainer = Instance.new("Folder")
     systemContainer.Name = name;
     systemContainer.Parent = workspace
@@ -136,7 +152,6 @@ function SystemsService.buildSystem(players)
     charactersContainer.Name = "__characters"
     charactersContainer.Parent = systemContainer
 
-    local cframe = getCFrameInArea()
     local sub = SystemsService.newSubmarine();
     sub.Name = "__submarine"
     sub.CFrame = cframe

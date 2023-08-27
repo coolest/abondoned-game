@@ -18,17 +18,15 @@ local Net = Red.Server("Data", { "getPlayerData" })
 
 --
 
+local defaultData = {
+    plays = 0;
+
+    checkpoint = 1;
+}
+
 local documents = {}
 local collection = Lapis.createCollection("PlayerData", {
-	defaultData = {
-        plays = 0;
-
-		attempts = 0;
-        completions = 0;
-
-        coins = 0;
-        uniqueComrades = 0;
-	},
+	defaultData = defaultData,
 
     validate = function()
         return true;
@@ -50,6 +48,16 @@ local function onPlayerAdded(player)
             plays = data.plays + 1;
         })
     );
+
+    for k, v in pairs(defaultData) do
+        if not data[k] then
+            document:write(
+                patch(data, {
+                    [k] = v
+                })
+            )
+        end
+    end
 
     documents[player] = document
 end
