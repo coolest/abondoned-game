@@ -68,11 +68,7 @@ function SystemsService.Start()
         submarine.AssemblyLinearVelocity = velocity
     end
 
-    local counter = 0;
-    RunService.PostSimulation:Connect(function(dt)
-        counter += 1
-        counter %= 300;
-
+    RunService.PreSimulation:Connect(function()
         local systems = SystemsService.getSystems();
         for _, system in ipairs(systems) do
             updateSystem(system)
