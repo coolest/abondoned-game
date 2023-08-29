@@ -40,6 +40,10 @@ local function spawnLavaBall(model)
             startPos = centerPos,
             endPos = lavaballPos,
         })
+
+        task.delay(3.25, function()
+            
+        end)
     end
 end
 
