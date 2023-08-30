@@ -1,5 +1,9 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local ServerScriptService = game:GetService("ServerScriptService")
+
+local Services = ServerScriptService.Services
+local DamageService = require(Services.DamageService)
 
 local Packages = ReplicatedStorage.Packages
 local Red = require(Packages.red)
@@ -25,7 +29,7 @@ end
 local function spawnLavaBall(model)
     assert(model and model:IsA("Model") and model.PrimaryPart, "Need to provide a valid volcano with a valid primary part")
 
-    local radius = math.random(50, 90)
+    local radius = math.random(70, 125)
     local arc = math.random(50, 100)
     local centerPos = model.PrimaryPart.Position
     local theta = math.random(0, 360)
@@ -41,8 +45,12 @@ local function spawnLavaBall(model)
             endPos = lavaballPos,
         })
 
-        task.delay(3.25, function()
-            
+        task.delay(3, function()
+            local players = getPlayersNearPosition(lavaballPos, 10)
+            for _, player in ipairs(players) do
+                local character = player.Character
+                DamageService.damageCharacter(character, 75)
+            end
         end)
     end
 end

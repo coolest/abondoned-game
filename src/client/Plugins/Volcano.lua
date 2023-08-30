@@ -19,18 +19,22 @@ local function spawnLavaBall(info)
     local arc = info.arc
     local startPos = info.startPos
     local endPos = info.endPos
-    
+
     IndicatorController.createHazardIndicator(endPos)
+    
+    task.wait(1)
 
     local model = lavaball:Clone()
     model:PivotTo(CFrame.new(startPos))
     model.Parent = assets
 
-    local speedUp = 0;
+    local speedUp = -1/10;
     local alpha = 0;
     local positionHandler = function(dt)
-        speedUp += 1
-        alpha = math.clamp(alpha+dt/3.25, 0, 1)
+        speedUp += dt/11
+
+        local boost = math.clamp(speedUp*speedUp, 0, 1/30)
+        alpha = math.clamp(boost+alpha+dt/3.25, 0, 1)
         
         local pos = startPos*(1-alpha) + endPos*alpha
         local yPosDelta = math.clamp(arc * math.cos((alpha*0.675)*1.5*math.pi + 1.5*math.pi), 0, math.huge)
