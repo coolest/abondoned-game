@@ -1,8 +1,11 @@
-local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local Events = ServerScriptService.Events
-local PlayerAdded = require(Events.PlayerAdded)
+local SystemAdded = require(Events.SystemAdded)
+
+local Helpers = ReplicatedStorage.Helpers
+local SystemsHelper = require(Helpers.SystemsHelper)
 
 local DamageService = {}
 
@@ -13,48 +16,74 @@ function DamageService.Init()
 end
 
 function DamageService.Start()
-    PlayerAdded.Signal:Connect(DamageService.onPlayerAdded)
-    Players.PlayerRemoving:Connect(DamageService.onPlayerRemoving)
+    SystemAdded.Signal:Connect(DamageService.onSystemAdded)
 end
 
 function DamageService.getHealths()
     return DamageService._state.healths
 end
 
-function DamageService.registerCharacter(character)
+function DamageService.onSystemAdded(system)
+    assert(SystemsHelper.verifySystem(system), debug.traceback(3) .. "\nProvided value was not verified to be a system!")
+
+    local characterContainer = SystemsHelper.getCharactersInSystem(system)
+    local submarine = SystemsHelper.getSubmarineInSystem(system)
     local healths = DamageService.getHealths()
-    local key = character.Name
-
-    healths[key] = 100;
+    table.insert(healths, {
+        750, submarine, unpack(characterContainer:GetChildren())
+    })
 end
 
-function DamageService.removePlayerOrCharacter(plrOrCharacter)
+function DamageService.getHealthTableFromCharacter(character)
     local healths = DamageService.getHealths()
-    local key = plrOrCharacter.Name
-
-    healths[key] = nil;
+    for _, healthTable in ipairs(healths) do
+        if table.find(healthTable, character) then
+            return healthTable
+        end
+    end
 end
 
-function DamageService.onPlayerAdded(player)
-    player.CharacterAdded:Connect(DamageService.registerCharacter)
+function DamageService.getHealthTableFromSubmarine(submarine)
+    local healths = DamageService.getHealths()
+    for _, healthTable in ipairs(healths) do
+        if healthTable[2] == submarine then
+            return healthTable
+        end
+    end
 end
 
-function DamageService.onPlayerRemoving(player)
-    DamageService.removePlayerOrCharacter(player)
+function DamageService.damageHealthTable(healthTable, value)
+    healthTable[1] -= value;
+
+    local health = healthTable[1]
+    local isAlive = health > 0
+    if isAlive then
+        return;
+    end
+    
+    for i = 3, #healthTable do
+        local character = healthTable[i]
+        local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.Health = 0;
+        end
+    end
 end
 
 function DamageService.damageCharacter(character, value)
-    assert(character and typeof(character) == "Instance" and character:IsA("Model"), "Need to provide a valid character.")
+    local healthTable = DamageService.getHealthTableFromCharacter(character)
+    assert(healthTable, "Could not find health table - invalid character given.")
     assert(value and typeof(value) == "number", "Number provided needs to be a valid number")
 
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    local healths = DamageService.getHealths()
-    local key = character.Name
+    DamageService.damageHealthTable(healthTable, value)
+end
 
-    healths[key] -= value
+function DamageService.damageSubmarine(submarine, value)
+    local healthTable = DamageService.getHealthTableFromSubmarine(submarine)
+    assert(healthTable, "Could not find health table - invalid submarine given.")
+    assert(value and typeof(value) == "number", "Number provided needs to be a valid number")
 
-    local newHealth = healths[key]
-    humanoid.Health = newHealth
+    DamageService.damageHealthTable(healthTable, value)
 end
 
 return DamageService

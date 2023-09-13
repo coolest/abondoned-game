@@ -8,6 +8,9 @@ local SystemsHelper = require(Helpers.SystemsHelper)
 local Plugins = ServerScriptService.Plugins
 local Documents = require(Plugins.Documents)
 
+local Events = ServerScriptService.Events
+local SystemAdded = require(Events.SystemAdded)
+
 local Packages = ReplicatedStorage.Packages
 local Red = require(Packages.red)
 
@@ -85,6 +88,8 @@ function SystemsService.registerSystem(system)
 
     local systems = SystemsService.getSystems()
     table.insert(systems, system)
+
+    SystemAdded.Signal:Fire(system)
 end
 
 function SystemsService.newChainBeam()
