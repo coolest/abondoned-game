@@ -10,10 +10,13 @@ local Red = require(Packages.red)
 
 local Utils = ReplicatedStorage.Utils
 local getPlayersNearPosition = require(Utils.getPlayersNearPosition)
+local getSystemsNearPosition = require(Utils.getSystemsNearPosition)
 
 local Net = Red.Server("Volcano", {"Lavaball"})
 
 local map = workspace
+
+local LAVABALL_DAMAGE = 50;
 
 local volcanos = {}
 for _, v in ipairs(map:GetChildren()) do
@@ -46,10 +49,9 @@ local function spawnLavaBall(model)
         })
 
         task.delay(3, function()
-            local players = getPlayersNearPosition(lavaballPos, 10)
-            for _, player in ipairs(players) do
-                local character = player.Character
-                DamageService.damageCharacter(character, 75)
+            local systems = getSystemsNearPosition(lavaballPos, 10)
+            for system, degree in pairs(systems) do
+                DamageService.damageSystem(system, LAVABALL_DAMAGE*degree)
             end
         end)
     end

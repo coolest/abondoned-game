@@ -8,6 +8,10 @@ function SystemsHelper.getSubmarineInSystem(system)
     return system:FindFirstChild("__submarine")
 end
 
+function SystemsHelper.getHealthBarInSystem(system)
+    return system:FindFirstChild("__health") and system.__health:FindFirstChild("Gui")
+end
+
 function SystemsHelper.verifySystem(system)
     return 
         SystemsHelper.getCharactersInSystem(system) and
@@ -25,6 +29,10 @@ end
 
 function SystemsHelper.getSystemFromCharacter(character)
     return character.Parent.Name == "__characters" and character.Parent.Parent
+end
+
+function SystemsHelper.getSystemFromSubmarine(submarine)
+    return submarine.Name == "__submarine" and submarine.Parent
 end
 
 return SystemsHelper

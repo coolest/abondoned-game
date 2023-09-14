@@ -14,7 +14,11 @@ local SystemAdded = require(Events.SystemAdded)
 local Packages = ReplicatedStorage.Packages
 local Red = require(Packages.red)
 
-local Net = Red.Server("Systems", {"New"})
+local Net = Red.Server("Systems", {"New", "RequestAll"})
+
+local gameItems = ReplicatedStorage._GAME_ITEMS
+local systems = Instance.new("Folder", workspace)
+systems.Name = "__Systems"
 
 local function getSpawnCFrameFromCheckpoint(checkpoint)
     checkpoint = workspace.Checkpoints:FindFirstChild("Checkpoint" .. tostring(checkpoint))
@@ -40,6 +44,10 @@ function SystemsService.Init()
     SystemsService._state = {
         systems = {};
     }
+
+    Net:On("RequestAll", function()
+        return SystemsService.getSystems()
+    end)
 end
 
 function SystemsService.Start()
@@ -146,7 +154,7 @@ function SystemsService.buildSystem(players)
 
     local systemContainer = Instance.new("Folder")
     systemContainer.Name = name;
-    systemContainer.Parent = workspace
+    systemContainer.Parent = systems
     systemContainer:SetAttribute("MaxDistance", 10 + #players)
 
     local charactersContainer = Instance.new("Folder")
@@ -180,6 +188,10 @@ function SystemsService.buildSystem(players)
 
         radians -= increment
     end
+
+    local health = gameItems.Health:Clone()
+    health.Name = "__health"
+    health.Parent = systemContainer
 
     SystemsService.registerSystem(systemContainer)
 

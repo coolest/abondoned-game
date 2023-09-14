@@ -23,7 +23,9 @@ function SystemsController.Init()
 
     SystemsController._state = {
         systems = {}
-    }
+    };
+
+    task.spawn(SystemsController.loadSystems)
 end
 
 function SystemsController.Start()
@@ -68,7 +70,18 @@ function SystemsController.Start()
     end)
     ]]
 
-    RunService:BindToRenderStep("FakeChainForce", Enum.RenderPriority.First.Value, function(dt)
+    RunService:BindToRenderStep("HealthGui", Enum.RenderPriority.First.Value, function()
+        local systems = SystemsController.getSystems()
+        for _, system in ipairs(systems) do
+            local submarine = SystemsHelper.getSubmarineInSystem(system)
+            local healthBarGui = SystemsHelper.getHealthBarInSystem(system)
+            local part = healthBarGui.Parent
+
+            part.Position = submarine.Position
+        end
+    end)
+
+    RunService:BindToRenderStep("FakeChainForce", Enum.RenderPriority.First.Value, function()
         local character = Player.Character
         if not character or character:GetAttribute("Ragdoll") then
             return;
@@ -96,6 +109,13 @@ function SystemsController.Start()
             charRoot.CFrame = charRoot.CFrame + delta
         end
     end)
+end
+
+function SystemsController.loadSystems()
+    local systems = Net:Call("RequestAll")
+    for _, system in ipairs(systems) do
+        SystemsController.addSystem(system)
+    end
 end
 
 function SystemsController.getSystems()
