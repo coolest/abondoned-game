@@ -4,6 +4,9 @@ local RunService = game:GetService("RunService")
 local Packages = ReplicatedStorage.Packages
 local Red = require(Packages.red)
 
+local Utils = ReplicatedStorage.Utils
+local Emit = require(Utils.emit)
+
 local Controllers = script.Parent.Parent.Controllers
 local IndicatorController = require(Controllers.IndicatorController)
 
@@ -11,7 +14,7 @@ local Net = Red.Client("Volcano")
 
 local assets = workspace.Assets
 local lavaball = ReplicatedStorage._GAME_ITEMS.Lavaball
-local hazardIndicator = ReplicatedStorage._GAME_ITEMS.HazardIndicator
+local explosion = ReplicatedStorage._GAME_ITEMS.VFX.Explosion
 
 local lavaballs = {}
 
@@ -49,6 +52,17 @@ local function spawnLavaBall(info)
     })
 end
 
+local function createExplosion(ball)
+    local primary = ball.PrimaryPart
+    local vfx = explosion:Clone()
+    vfx.Position = primary.Position
+    vfx.Parent = assets
+
+    ball:Destroy()
+
+    Emit(vfx)
+end
+
 RunService:BindToRenderStep("Lavaballs", Enum.RenderPriority.Last.Value, function(dt)
     for i = #lavaballs, 1, -1 do
         local lavaballWrapper = lavaballs[i]
@@ -58,7 +72,7 @@ RunService:BindToRenderStep("Lavaballs", Enum.RenderPriority.Last.Value, functio
             table.remove(lavaballs, i)
 
             local model = lavaballWrapper.model
-            task.delay(1, model.Destroy, model)
+            task.spawn(createExplosion, model)
         end
     end
 end)

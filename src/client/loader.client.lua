@@ -10,6 +10,15 @@ local LoadedSignal = Instance.new("BindableEvent")
 LoadedSignal.Name = "CLIENT_LOADED"
 LoadedSignal.Parent = ReplicatedStorage
 
+local function prettyPrint(str, loadTime)
+    loadTime *= 1_000_000;
+
+    local label = string.format("%-30s", str)
+    local perf = string.format("%dµs", math.ceil(loadTime))
+
+    print(label, perf)
+end
+
 --
 
 print("[CLIENT LOADING]")
@@ -23,7 +32,7 @@ for _, src in ipairs(PlayerScripts:WaitForChild("Plugins"):GetChildren()) do
     end
 end
 
-print("Loaded plugins in: ", os.clock()-start, "s")
+prettyPrint("Loaded plugins in: ", os.clock()-start, "s")
 
 --
 
@@ -34,7 +43,7 @@ for _, src in ipairs(PlayerScripts:WaitForChild("Controllers"):GetChildren()) do
     controllers[src.Name] = require(src)
 end
 
-print("Required controllers in: ", os.clock()-start, "s")
+prettyPrint("Required controllers in: ", os.clock()-start, "s")
 
 start = os.clock()
 for name, controller in pairs(controllers) do
@@ -44,7 +53,7 @@ for name, controller in pairs(controllers) do
     end
 end
 
-print("Initialized controllers in: ", os.clock()-start, "s")
+prettyPrint("Initialized controllers in: ", os.clock()-start, "s")
 
 start = os.clock()
 for name, controller in pairs(controllers) do
@@ -54,7 +63,7 @@ for name, controller in pairs(controllers) do
     end
 end
 
-print("Started controllers in: ", os.clock()-start, "s")
+prettyPrint("Started controllers in: ", os.clock()-start, "s")
 
 --
 
@@ -77,6 +86,6 @@ for _, event in ipairs(Events) do
     end
 end
 
-print("Loaded events in: ", os.clock()-start, "s")
+prettyPrint("Loaded events in: ", os.clock()-start, "s")
 
 LoadedSignal:Fire()

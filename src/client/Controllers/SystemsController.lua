@@ -25,7 +25,10 @@ function SystemsController.Init()
         systems = {}
     };
 
-    task.spawn(SystemsController.loadSystems)
+    
+    Net:Call("RequestAll"):Then(SystemsController.loadSystems, function(err)
+        warn("Existing Systems will be out of sync with server -- could not fetch: ", err)
+    end)
 end
 
 function SystemsController.Start()
@@ -111,8 +114,7 @@ function SystemsController.Start()
     end)
 end
 
-function SystemsController.loadSystems()
-    local systems = Net:Call("RequestAll")
+function SystemsController.loadSystems(systems)
     for _, system in ipairs(systems) do
         SystemsController.addSystem(system)
     end

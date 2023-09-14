@@ -44,20 +44,25 @@ Net:On("UpdateHealthBar", function(healthBarGui, maxHealth, health, change)
 end)
 
 -- For making client have correct information displayed for health bars upon join
-local serverInfo = Net:Call("RequestAll")
-for _, healthInfo in ipairs(serverInfo) do
-    local currentHealth = healthInfo[1]
-    local maxHealth = healthInfo[2]
-    local submarine = healthInfo[3]
-
-    local system = SystemHelper.getSystemFromSubmarine(submarine)
-    local healthBarGui = SystemHelper.getHealthBarInSystem(system)
-
-    local healthBar = healthBarGui:FindFirstChild("HealthBar", true)
-    local healthLabel = healthBarGui:FindFirstChild("HealthAmount", true)
-
-    healthBar.Size = UDim2.new(currentHealth/maxHealth, 0, 1, 0)
-    healthLabel.Text = tostring(currentHealth) .. "/" .. tostring(maxHealth)
+local function handleServerInfo(serverInfo)
+    for _, healthInfo in ipairs(serverInfo) do
+        local currentHealth = healthInfo[1]
+        local maxHealth = healthInfo[2]
+        local submarine = healthInfo[3]
+    
+        local system = SystemHelper.getSystemFromSubmarine(submarine)
+        local healthBarGui = SystemHelper.getHealthBarInSystem(system)
+    
+        local healthBar = healthBarGui:FindFirstChild("HealthBar", true)
+        local healthLabel = healthBarGui:FindFirstChild("HealthAmount", true)
+    
+        healthBar.Size = UDim2.new(currentHealth/maxHealth, 0, 1, 0)
+        healthLabel.Text = tostring(currentHealth) .. "/" .. tostring(maxHealth)
+    end
 end
+
+Net:Call("RequestAll"):Then(handleServerInfo, function(err)
+    warn("Existing HealthBars will be out of sync with server -- could not fetch: ", err)
+end)
 
 return true;

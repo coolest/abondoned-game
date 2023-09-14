@@ -6,6 +6,9 @@ local GameItems = ReplicatedStorage._GAME_ITEMS
 local jumpVFX = GameItems.VFX.Jump
 local jumpBubblesVFX = GameItems.VFX.JumpBubbles
 
+local Utils = ReplicatedStorage.Utils
+local Emit = require(Utils.emit)
+
 local Event = ReplicatedStorage.Events
 local CharacterAdded = require(Event.CharacterAdded)
 
@@ -28,18 +31,7 @@ CharacterAdded.Signal:Connect(function(character)
             vfx.Anchored = true;
             vfx.Parent = assets
 
-            for _, v in ipairs(vfx:GetDescendants()) do
-                local isParticleEmitter = v:IsA("ParticleEmitter")
-                if isParticleEmitter then
-                    local emitDelay = v:GetAttribute("EmitDelay")
-                    local emitCount = v:GetAttribute("EmitCount")
-                    if (emitDelay or 0) <= 0 then
-                        task.spawn(v.Emit, v, emitCount)
-                    else
-                        task.delay(emitDelay, v.Emit, v, emitCount)
-                    end
-                end
-            end
+            Emit(vfx)
 
             local bubbles = jumpBubblesVFX:Clone()      
             bubbles.CFrame = root.CFrame - Vector3.new(0, humanoid.HipHeight, 0)
