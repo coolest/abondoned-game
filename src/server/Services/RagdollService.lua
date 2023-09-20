@@ -56,6 +56,7 @@ end
 function RagdollService.Init()
     CharacterAdded.Signal:Connect(RagdollService.setUpRagdoll)
 
+    --[[
     RunService.PostSimulation:Connect(function()
         local players = Players:GetPlayers()
         local characters = {}
@@ -107,6 +108,7 @@ function RagdollService.Init()
             end
         end
     end)
+    ]]
 
     local function toggleClientReq(on)
         return function(plr)
