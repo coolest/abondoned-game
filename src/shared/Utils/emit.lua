@@ -1,3 +1,8 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Utils = ReplicatedStorage.Utils
+local assert = require(Utils.assert)
+
 return function(object)
     assert(object and typeof(object) == "Instance", debug.traceback(3) .. "\nObject provided needs to be a roblox instance!")
 

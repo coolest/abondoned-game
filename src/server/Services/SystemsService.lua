@@ -14,6 +14,9 @@ local SystemAdded = require(Events.SystemAdded)
 local Packages = ReplicatedStorage.Packages
 local Red = require(Packages.red)
 
+local Utils = ReplicatedStorage.Utils
+local assert = require(Utils.assert)
+
 local Net = Red.Server("Systems", {"New", "RequestAll"})
 
 local gameItems = ReplicatedStorage._GAME_ITEMS

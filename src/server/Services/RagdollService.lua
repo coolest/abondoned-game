@@ -9,10 +9,10 @@ local Packages = ReplicatedStorage.Packages
 local Red = require(Packages.red)
 
 local Services = ServerScriptService.Services
-local CollisionService = require(Services.CollisionService)
+local CollisionService;
 
-local addToCharacters = CollisionService.addToCollisionGroup("Characters")
-local addToRagdoll = CollisionService.addToCollisionGroup("Ragdoll")
+local addToCharacters
+local addToRagdoll
 
 local Net = Red.Server("Ragdoll", {"On", "Off"})
 
@@ -47,6 +47,10 @@ end
 
 -- exposed
 function RagdollService.Init()
+    CollisionService    = require(Services.CollisionService)
+    addToCharacters     = CollisionService.addToCollisionGroup("Characters")
+    addToRagdoll        = CollisionService.addToCollisionGroup("Ragdoll")
+
     CharacterAdded.Signal:Connect(RagdollService.setUpRagdoll)
 
     local function toggleClientReq(on)

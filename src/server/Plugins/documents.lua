@@ -41,7 +41,7 @@ local function onPlayerAdded(player)
 
     local data = document:read()
 
-    print(`{player.Name} joined with {data.plays} plays`)
+    --print(`{player.Name} joined with {data.plays} plays`)
 
     document:write(
         patch(data, {

@@ -3,7 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local Services = ServerScriptService.Services
-local SystemsService = require(Services.SystemsService)
+local SystemsService
 
 local Helpers = ReplicatedStorage.Helpers
 local SystemsHelper = require(Helpers.SystemsHelper)
@@ -16,6 +16,8 @@ local Net = Red.Server("Slot", {"Join", "Leave", "Start"})
 local SlotService = {}
 
 function SlotService.Init()
+    SystemsService = require(Services.SystemsService)
+    
     Net:On("Leave", SlotService.tryLeave)
     Net:On("Start", SlotService.tryStart)
 

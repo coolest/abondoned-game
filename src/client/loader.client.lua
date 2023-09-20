@@ -21,7 +21,9 @@ end
 
 --
 
+print(("/"):rep(50))
 print("[CLIENT LOADING]")
+print(("/"):rep(50))
 
 local start = os.clock()
 
@@ -87,5 +89,6 @@ for _, event in ipairs(Events) do
 end
 
 prettyPrint("Loaded events in: ", os.clock()-start, "s")
+print(("/"):rep(50))
 
 LoadedSignal:Fire()

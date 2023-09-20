@@ -5,7 +5,22 @@ local ServerLoaded = Instance.new("BindableEvent")
 ServerLoaded.Name = "SERVER_LOADED"
 ServerLoaded.Parent = ReplicatedStorage
 
+local function prettyPrint(str, loadTime)
+    loadTime *= 1_000_000;
+
+    local label = string.format("%-30s", str)
+    local perf = string.format("%dµs", math.ceil(loadTime))
+
+    print(label, perf)
+end
+
+print(("/"):rep(50))
+print("[SERVER LOADING]")
+print(("/"):rep(50))
+
 --
+
+local start = os.clock()
 
 for _, src in ipairs(ServerScriptService.Plugins:GetChildren()) do
     local ok, err = pcall(require, src)
@@ -14,13 +29,20 @@ for _, src in ipairs(ServerScriptService.Plugins:GetChildren()) do
     end
 end
 
+prettyPrint("Loaded plugins in: ", os.clock()-start, "s")
+
 --
+
+start = os.clock()
 
 local services = {}
 
 for _, src in ipairs(ServerScriptService.Services:GetChildren()) do
     table.insert(services, require(src))
 end
+
+prettyPrint("Required services in: ", os.clock()-start, "s")
+start = os.clock()
 
 for _, service in ipairs(services) do
     local ok, err = pcall(service.Init)
@@ -29,12 +51,18 @@ for _, service in ipairs(services) do
     end
 end
 
+prettyPrint("Initialized services in: ", os.clock()-start, "s")
+start = os.clock()
+
 for _, service in ipairs(services) do
     local ok, err = pcall(service.Start)
     if not ok then
-        error(string.format("Issue initializing service, %s", err))
+        error(string.format("Issue starting service, %s", err))
     end
 end
+
+prettyPrint("Started services in: ", os.clock()-start, "s")
+start = os.clock()
 
 --
 
@@ -54,5 +82,8 @@ for _, event in ipairs(Events) do
         error(string.format("Issue starting event, %s:\n%s", event.Name, res))
     end
 end
+
+prettyPrint("Loaded events in: ", os.clock()-start, "s")
+print(("/"):rep(50))
 
 ServerLoaded:Fire()

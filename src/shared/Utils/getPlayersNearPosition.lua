@@ -1,4 +1,8 @@
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Utils = ReplicatedStorage.Utils
+local assert = require(Utils.assert)
 
 return function(pos, distance)
     assert(pos and typeof(pos) == "Vector3", "Position needs to be a Vector3")

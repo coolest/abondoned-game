@@ -4,7 +4,7 @@ local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local Services = ServerScriptService.Services
-local RagdollService = require(Services.RagdollService)
+local RagdollService;
 
 local Packages = ReplicatedStorage.Packages
 local Red = require(Packages.red)
@@ -12,6 +12,9 @@ local GoodSignal = require(Packages.goodsignal)
 
 local Helpers = ReplicatedStorage.Helpers
 local SystemsHelper = require(Helpers.SystemsHelper)
+
+local Utils = ReplicatedStorage.Utils
+local assert = require(Utils.assert)
 
 local FALLING_VALUE_UNTIL_RAGDOLL = -125;
 local MIN_FALL_TIME = 1/2;
@@ -33,6 +36,8 @@ local function getRootPartFromObject(obj)
 end
 
 function MovementService.Init()
+    RagdollService = require(Services.RagdollService)
+    
     MovementService._state = {
         initialStatesKnockback = {};
         initialStatesFalling = {};
@@ -84,6 +89,13 @@ function MovementService.Init()
 
                 RagdollService.ragdollOn(character)
                 MovementService.addFallingInitialState(character)
+
+                local fallingComplete = MovementService.getSignalForFallingComplete(character)
+                fallingComplete:Connect(function()
+                    task.wait(1/2)
+
+                    RagdollService.ragdollOff(character)
+                end)
             end
         end
 
