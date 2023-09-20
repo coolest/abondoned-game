@@ -67,8 +67,8 @@ local function spawnLavaBall(model)
 
                 local knockbackComplete = KnockbackService.getSignalForKnockbackComplete(character)
                 knockbackComplete:Connect(function()
-                    task.wait(1/3)
-                    
+                    task.wait(1/2)
+
                     RagdollService.ragdollOff(character)
                 end)
             end
