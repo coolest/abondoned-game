@@ -18,7 +18,7 @@ Net:On("UpdateHealthBar", function(healthBarGui, maxHealth, health, change)
 
     local hasTarget = targets[healthBar] ~= nil
     if hasTarget then
-        targets[healthBar] = newSize;
+        targets[healthBar] = UDim2.new(newSize, 0, 1, 0);
 
         return;
     end

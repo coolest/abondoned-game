@@ -70,7 +70,7 @@ function SystemsService.Start()
             if dampeningValue < 3 then
                 local assemblyVelocity = CFrame.lookAt(submarine.Position, root.Position).LookVector * root.AssemblyLinearVelocity.Magnitude * 2
                 velocity += Vector3.new(assemblyVelocity.X, assemblyVelocity.Y/5, assemblyVelocity.Z) * multiplier / dampeningValue
-            elseif (dist-maxDist) > 1 then
+            elseif (dist-maxDist) > 3 then
                 local look = CFrame.lookAt(submarine.Position, root.Position).LookVector
                 velocity += look*15 * multiplier/2
             end

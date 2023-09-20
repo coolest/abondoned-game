@@ -4,9 +4,13 @@ local ServerScriptService = game:GetService("ServerScriptService")
 
 local Services = ServerScriptService.Services
 local DamageService = require(Services.DamageService)
+local RagdollService = require(Services.RagdollService)
 
 local Packages = ReplicatedStorage.Packages
 local Red = require(Packages.red)
+
+local ServerUtils = ServerScriptService.Utils
+local Knockback = require(ServerUtils.Knockback)
 
 local Utils = ReplicatedStorage.Utils
 local getPlayersNearPosition = require(Utils.getPlayersNearPosition)
@@ -52,6 +56,16 @@ local function spawnLavaBall(model)
             local systems = getSystemsNearPosition(lavaballPos, 10)
             for system, degree in pairs(systems) do
                 DamageService.damageSystem(system, LAVABALL_DAMAGE*degree)
+            end
+
+            local players = getPlayersNearPosition(lavaballPos, 10)
+            for _, player in ipairs(players) do
+                local character = player.Character
+                local rootPart = character.PrimaryPart
+                RagdollService.ragdollOn(character)
+
+                local force = Vector3.new(0, 50, 0) + (rootPart.Position - lavaballPos).Unit * 50
+                Knockback(character, force)
             end
         end)
     end
