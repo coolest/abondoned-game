@@ -7,6 +7,9 @@ local indicatorContainer = Instance.new("Folder")
 indicatorContainer.Name = "__indicators"
 indicatorContainer.Parent = assets
 
+local Utils = ReplicatedStorage.Utils
+local assert = require(Utils.assert)
+
 local IndicatorController = {}
 
 function IndicatorController.Init()

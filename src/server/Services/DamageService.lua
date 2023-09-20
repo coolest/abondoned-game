@@ -13,6 +13,7 @@ local SystemsHelper = require(Helpers.SystemsHelper)
 
 local Utils = ReplicatedStorage.Utils
 local getPlayersNearPosition = require(Utils.getPlayersNearPosition)
+local assert = require(Utils.assert)
 
 local Net = Red.Server("Damage", {"UpdateHealthBar", "RequestAll"})
 

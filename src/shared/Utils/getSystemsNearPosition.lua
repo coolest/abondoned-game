@@ -3,6 +3,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Helpers = ReplicatedStorage.Helpers
 local SystemHelper = require(Helpers.SystemsHelper)
 
+local Utils = ReplicatedStorage.Utils
+local assert = require(Utils.assert)
+
 return function(pos, distance)
     assert(pos and typeof(pos) == "Vector3", "Position needs to be a Vector3")
 
