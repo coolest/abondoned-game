@@ -118,7 +118,7 @@ function MovementService.Init()
         end
 
         --// Falling End
-        initialStates = MovementService.getKnockbackInitialStates()
+        initialStates = MovementService.getFallingInitialStates()
         for i = #initialStates, 1, -1 do
             local initialState = initialStates[i]
             local root = initialState[1]
