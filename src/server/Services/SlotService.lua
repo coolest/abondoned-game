@@ -11,6 +11,9 @@ local SystemsHelper = require(Helpers.SystemsHelper)
 local Packages = ReplicatedStorage.Packages
 local Red = require(Packages.red)
 
+local Utils = ReplicatedStorage.Utils
+local assert = require(Utils.assert)
+
 local Net = Red.Server("Slot", {"Join", "Leave", "Start"})
 
 local SlotService = {}
