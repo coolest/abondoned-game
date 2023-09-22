@@ -4,7 +4,7 @@ local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local Services = ServerScriptService.Services
-local DamageService = require(Services.DamageService)
+local HealthService = require(Services.HealthService)
 local RagdollService = require(Services.RagdollService)
 local MovementService = require(Services.MovementService)
 
@@ -55,7 +55,7 @@ local function spawnLavaBall(model)
         task.delay(3, function()
             local systems = getSystemsNearPosition(lavaballPos, 10)
             for system, degree in pairs(systems) do
-                DamageService.damageSystem(system, LAVABALL_DAMAGE*degree)
+                HealthService.damageSystem(system, LAVABALL_DAMAGE*degree)
             end
 
             local players = getPlayersNearPosition(lavaballPos, 10)

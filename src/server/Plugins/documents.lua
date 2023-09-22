@@ -7,6 +7,7 @@ local PlayerAdded = require(Events.PlayerAdded).Signal
 
 local Packages = ReplicatedStorage.Packages
 local Red = require(Packages.red)
+local GoodSignal = require(Packages.goodsignal)
 
 local ServerPackages = ServerScriptService.Packages
 local Lapis = require(ServerPackages.lapis)
@@ -34,8 +35,14 @@ local collection = Lapis.createCollection("PlayerData", {
 })
 
 local function onPlayerAdded(player)
+    documents[player] = GoodSignal.new()
+    documents[player].__type = "goodsignal"
+    
     local ok, document = collection:load(`Player{player.UserId}`):await()
     if not ok then
+        documents[player]:Fire()
+        documents[player] = defaultData;
+
         return;
     end
 
@@ -59,6 +66,7 @@ local function onPlayerAdded(player)
         end
     end
 
+    documents[player]:Fire()
     documents[player] = document
 end
 

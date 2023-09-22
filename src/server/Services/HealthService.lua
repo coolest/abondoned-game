@@ -13,23 +13,24 @@ local SystemsHelper = require(Helpers.SystemsHelper)
 
 local Utils = ReplicatedStorage.Utils
 local getPlayersNearPosition = require(Utils.getPlayersNearPosition)
+local getCharacterFromPart = require(Utils.getCharacterFromPart)
 local assert = require(Utils.assert)
 
 local Net = Red.Server("Damage", {"UpdateHealthBar", "RequestAll"})
 
-local DamageService = {}
+local HealthService = {}
 
-function DamageService.Init()
-    DamageService._state = {
+function HealthService.Init()
+    HealthService._state = {
         healths = {};
     }
 end
 
-function DamageService.Start()
-    SystemAdded.Signal:Connect(DamageService.onSystemAdded)
+function HealthService.Start()
+    SystemAdded.Signal:Connect(HealthService.onSystemAdded)
 
     Net:On("RequestAll", function()
-        local healthTables = DamageService.getHealths()
+        local healthTables = HealthService.getHealths()
         local packet = {}
         for _, healthTable in ipairs(healthTables) do
             table.insert(packet, {
@@ -39,25 +40,39 @@ function DamageService.Start()
 
         return packet
     end)
+
+    local function onPartTouchedHealthPad(part)
+        local character = getCharacterFromPart(part)
+        if not character then
+            return;
+        end
+
+        HealthService.fullHealSystemFromCharacter(character)
+    end
+
+    local healthPads = {}
+    for _, healthPad in ipairs(healthPads) do
+        healthPad.Touched:Connect(onPartTouchedHealthPad)
+    end
 end
 
-function DamageService.getHealths()
-    return DamageService._state.healths
+function HealthService.getHealths()
+    return HealthService._state.healths
 end
 
-function DamageService.onSystemAdded(system)
+function HealthService.onSystemAdded(system)
     assert(SystemsHelper.verifySystem(system), debug.traceback(3) .. "\nProvided value was not verified to be a system!")
 
     local characterContainer = SystemsHelper.getCharactersInSystem(system)
     local submarine = SystemsHelper.getSubmarineInSystem(system)
-    local healths = DamageService.getHealths()
+    local healths = HealthService.getHealths()
     table.insert(healths, {
         750, 750, submarine, unpack(characterContainer:GetChildren())
     })
 end
 
-function DamageService.getHealthTableFromCharacter(character)
-    local healths = DamageService.getHealths()
+function HealthService.getHealthTableFromCharacter(character)
+    local healths = HealthService.getHealths()
     for _, healthTable in ipairs(healths) do
         if table.find(healthTable, character) then
             return healthTable
@@ -65,8 +80,8 @@ function DamageService.getHealthTableFromCharacter(character)
     end
 end
 
-function DamageService.getHealthTableFromSubmarine(submarine)
-    local healths = DamageService.getHealths()
+function HealthService.getHealthTableFromSubmarine(submarine)
+    local healths = HealthService.getHealths()
     for _, healthTable in ipairs(healths) do
         if healthTable[3] == submarine then
             return healthTable
@@ -74,15 +89,15 @@ function DamageService.getHealthTableFromSubmarine(submarine)
     end
 end
 
-function DamageService.damageHealthTable(healthTable, value)
-    healthTable[1] -= value;
+function HealthService.changeHealth(healthTable, inc)
+    healthTable[1] += inc;
 
     local health = healthTable[1]
     local maxHealth = healthTable[2]
     local sub = healthTable[3]
     local system = SystemsHelper.getSystemFromSubmarine(sub)
     local healthBarGui = SystemsHelper.getHealthBarInSystem(system)
-    Net:FireList(getPlayersNearPosition(sub.Position, 200), "UpdateHealthBar", healthBarGui, maxHealth, health, value)
+    Net:FireList(getPlayersNearPosition(sub.Position, 200), "UpdateHealthBar", healthBarGui, maxHealth, health, inc)
 
     local isAlive = health > 0
     if isAlive then
@@ -98,27 +113,34 @@ function DamageService.damageHealthTable(healthTable, value)
     end
 end
 
-function DamageService.damageSystemFromCharacter(character, value)
-    local healthTable = DamageService.getHealthTableFromCharacter(character)
+function HealthService.damageSystemFromCharacter(character, value)
+    local healthTable = HealthService.getHealthTableFromCharacter(character)
     assert(healthTable, "Could not find health table - invalid character given.")
     assert(value and typeof(value) == "number", "Number provided needs to be a valid number")
 
-    DamageService.damageHealthTable(healthTable, value)
+    HealthService.changeHealth(healthTable, -value)
 end
 
-function DamageService.damageSystemFromSubmarine(submarine, value)
-    local healthTable = DamageService.getHealthTableFromSubmarine(submarine)
+function HealthService.damageSystemFromSubmarine(submarine, value)
+    local healthTable = HealthService.getHealthTableFromSubmarine(submarine)
     assert(healthTable, "Could not find health table - invalid submarine given.")
     assert(value and typeof(value) == "number", "Number provided needs to be a valid number")
 
-    DamageService.damageHealthTable(healthTable, value)
+    HealthService.changeHealth(healthTable, -value)
 end
 
-function DamageService.damageSystem(system, value)
+function HealthService.damageSystem(system, value)
     assert(SystemsHelper.verifySystem(system), "Did not provide a valid system.")
 
     local submarine = SystemsHelper.getSubmarineInSystem(system)
-    DamageService.damageSystemFromSubmarine(submarine, value)
+    HealthService.damageSystemFromSubmarine(submarine, value)
 end
 
-return DamageService
+function HealthService.fullHealSystemFromCharacter(character)
+    local healthTable = HealthService.getHealthTableFromCharacter(character)
+    assert(healthTable, "Could not find health table - invalid character given.")
+
+    HealthService.changeHealth(healthTable, healthTable[2]-healthTable[1])
+end
+
+return HealthService

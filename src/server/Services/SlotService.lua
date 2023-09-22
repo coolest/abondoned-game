@@ -14,6 +14,9 @@ local Red = require(Packages.red)
 local Utils = ReplicatedStorage.Utils
 local assert = require(Utils.assert)
 
+local ServerUtils = ServerScriptService.Utils
+local getPlayerData = require(ServerUtils.getPlayerData)
+
 local Net = Red.Server("Slot", {"Join", "Leave", "Start"})
 
 local SlotService = {}
@@ -25,12 +28,22 @@ function SlotService.Init()
     Net:On("Start", SlotService.tryStart)
 
     SlotService._state = {
-        slots = {
-            {}, {}, {}, {}
-        };
-
-        roots = workspace.Slots:GetChildren();
+        slots = {};
+        roots = {};
     };
+
+    local slotsContainers = workspace.Slots
+    for _, container in ipairs(slotsContainers:GetChildren()) do
+        local checkpoint = tonumber(container.Name)
+        local slotRoots = container:GetChildren();
+
+        SlotService._state.slots[checkpoint] = {}
+
+        for _, slotRoot in ipairs(slotRoots) do
+            table.insert(SlotService._state.slots[checkpoint]   , {})
+            table.insert(SlotService._state.roots               , slotRoot)
+        end
+    end
 
     local function createSlotTouchedCallback(slot)
         return function(part)
@@ -59,8 +72,8 @@ function SlotService.Start()
 
 end
 
-function SlotService.getSlots() 
-    return SlotService._state.slots 
+function SlotService.getSlots(checkpoint)
+    return SlotService._state.slots[checkpoint]
 end
 
 function SlotService.getSlotRoots() 
@@ -80,7 +93,15 @@ function SlotService.getSlotRoot(slot)
 end
 
 function SlotService.getPlayerSlot(player)
-    local slots = SlotService.getSlots()
+    local ok, result = pcall(getPlayerData, player)
+    if not ok then
+        warn(result)
+
+        return;
+    end
+
+    local checkpoint = result.checkpoint
+    local slots = SlotService.getSlots(checkpoint)
     for i, slot in ipairs(slots) do
         if table.find(slot, player) then
             return i;
@@ -94,7 +115,7 @@ function SlotService.playerIsInSlot(player)
     return type(SlotService.getPlayerSlot(player)) == "number"
 end
 
-function SlotService.updateSlotCount(slot)
+function SlotService.updateSlotCount(checkpoint, slot)
     if type(slot) == "string" then
         slot = tonumber(slot)
     end
@@ -102,7 +123,7 @@ function SlotService.updateSlotCount(slot)
     local slotRoot = SlotService.getSlotRoot(slot)
     local counterLabel = slotRoot:FindFirstChild("CounterLabel", true)
     local playersLabel = slotRoot:FindFirstChild("PlayersLabel", true)
-    local amount = #SlotService.getSlots()[slot]
+    local amount = #SlotService.getSlots(checkpoint)[slot]
 
     if counterLabel then
         counterLabel.Text = tostring(amount)
@@ -144,14 +165,22 @@ function SlotService.tryJoin(player, slot)
         return false;
     end
 
-    local slots = SlotService.getSlots()
+    local ok, result = pcall(getPlayerData, player)
+    if not ok then
+        warn(result)
+
+        return;
+    end
+
+    local checkpoint = result.checkpoint
+    local slots = SlotService.getSlots(checkpoint)
     table.insert(slots[slot], player)
 
     local character = player.Character
     local root = character and character:FindFirstChild("HumanoidRootPart")
     if root then
         SlotService.placeCharacterInSlot(root, slot)
-        SlotService.updateSlotCount(slot)
+        SlotService.updateSlotCount(checkpoint, slot)
 
         Net:Fire(player, "Join")
     end
@@ -162,7 +191,15 @@ end
 function SlotService.tryLeave(player)
     assert(player and typeof(player) == "Instance" and player:IsA("Player"), "Need to pass player into the 1st argument.")
 
-    local slots = SlotService.getSlots()
+    local ok, result = pcall(getPlayerData, player)
+    if not ok then
+        warn(result)
+
+        return;
+    end
+
+    local checkpoint = result.checkpoint
+    local slots = SlotService.getSlots(checkpoint)
     local slotNumber = SlotService.getPlayerSlot(player)
     if slotNumber then
         local slot = tostring(slotNumber)
@@ -174,7 +211,7 @@ function SlotService.tryLeave(player)
 
         table.remove(slots[slotNumber], table.find(slots[slotNumber], player))
 
-        SlotService.updateSlotCount(slotNumber)
+        SlotService.updateSlotCount(checkpoint, slotNumber)
 
         return true;
     else
@@ -185,14 +222,22 @@ end
 function SlotService.tryStart(player)
     assert(player and typeof(player) == "Instance" and player:IsA("Player"), "Need to pass player into the 1st argument.")
 
-    local slots = SlotService.getSlots()
+    local ok, result = pcall(getPlayerData, player)
+    if not ok then
+        warn(result)
+
+        return;
+    end
+
+    local checkpoint = result.checkpoint
+    local slots = SlotService.getSlots(checkpoint)
     local slotNumber = SlotService.getPlayerSlot(player)
     if slotNumber then
         local players = table.clone(slots[slotNumber])
         table.clear(slots[slotNumber])
 
         SystemsService.buildSystem(players)
-        SlotService.updateSlotCount(slotNumber)
+        SlotService.updateSlotCount(checkpoint, slotNumber)
 
         Net:FireList(players, "Start")
     end

@@ -106,7 +106,7 @@ function SystemsController.Start()
         end
 
         local distance = (charRoot.Position - submarine.Position).Magnitude
-        local maxDistance = SystemsHelper.getMaximumLengthAllowed(system)
+        local maxDistance = SystemsHelper.getMaximumLengthAllowed(system) + 1
         if distance > maxDistance then
             local look = CFrame.lookAt(charRoot.Position, submarine.Position).LookVector
             local shiftPower = distance-maxDistance
