@@ -97,7 +97,7 @@ function SlotService.getPlayerSlot(player)
     if not ok then
         warn(result)
 
-        return;
+        return false;
     end
 
     local checkpoint = result.checkpoint

@@ -28,7 +28,7 @@ function SystemsHelper.getMaximumLengthAllowed(system)
 end
 
 function SystemsHelper.getSystemFromCharacter(character)
-    return character.Parent.Name == "__characters" and character.Parent.Parent
+    return character.Parent and character.Parent.Name == "__characters" and character.Parent.Parent
 end
 
 function SystemsHelper.getSystemFromSubmarine(submarine)

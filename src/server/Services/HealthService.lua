@@ -8,7 +8,7 @@ local Red = require(Packages.red)
 local ServerEvents = ServerScriptService.Events
 local SystemAdded = require(ServerEvents.SystemAdded)
 
-local Events = ReplicatedStorage.Events
+local Events = ServerScriptService.Events
 local CharacterDied = require(Events.CharacterDied)
 
 local Helpers = ReplicatedStorage.Helpers

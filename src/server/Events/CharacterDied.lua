@@ -14,10 +14,11 @@ local Red = require(Packages.red)
 
 local Utils = ReplicatedStorage.Utils
 local assert = require(Utils.assert)
+local getPlayersNearPosition = require(Utils.getPlayersNearPosition)
 
 local signal = GoodSignal.new()
 
-local Net = Red.Server("Reset", "OnReset")
+local Net = Red.Server("Death", {"OnReset", "DeathEffect"})
 Net:On("OnReset", function(player)
     signal:Fire(player)
 end)
@@ -31,26 +32,36 @@ signal:Connect(function(obj)
     local character = isPlayer and obj.Character or obj
     assert(character and character:FindFirstChild("Humanoid"), "Please provide a valid character/player!")
 
+    local player = Players:GetPlayerFromCharacter(character)
     RagdollService.ragdollOn(character)
     character.Parent = deadContainer
     character:SetAttribute("Dead", true)
 
     local system = SystemsHelper.getSystemFromCharacter(character)
-    if not system then
-        return;
+    if system then
+        local chains = character:FindFirstChild("__chains")
+        if chains then
+            chains:Destroy()
+        end
+
+        local charactersContainer = SystemsHelper.getCharactersInSystem(system)
+        local characters = charactersContainer:GetChildren()
+        if #characters == 0 then
+            -- clean up system
+            --system:Destroy()
+        end
     end
 
-    local chains = character:FindFirstChild("__chains")
-    if chains then
-        chains:Destroy()
+    -- death effect
+    task.wait(1/2)
+
+    local rootPos = character and character.PrimaryPart and character.PrimaryPart.Position
+    if rootPos then
+        Net:FireList(getPlayersNearPosition(rootPos, 200), "DeathEffect", character)
     end
 
-    local charactersContainer = SystemsHelper.getCharactersInSystem(system)
-    local characters = charactersContainer:GetChildren()
-    if #characters == 0 then
-        -- clean up system
-        --system:Destroy()
-    end
+    task.wait(1.5)
+    player:LoadCharacter()
 end)
 
 return {
