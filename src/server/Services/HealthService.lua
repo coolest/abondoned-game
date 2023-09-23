@@ -5,8 +5,11 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Packages = ReplicatedStorage.Packages
 local Red = require(Packages.red)
 
-local Events = ServerScriptService.Events
-local SystemAdded = require(Events.SystemAdded)
+local ServerEvents = ServerScriptService.Events
+local SystemAdded = require(ServerEvents.SystemAdded)
+
+local Events = ReplicatedStorage.Events
+local CharacterDied = require(Events.CharacterDied)
 
 local Helpers = ReplicatedStorage.Helpers
 local SystemsHelper = require(Helpers.SystemsHelper)
@@ -104,12 +107,10 @@ function HealthService.changeHealth(healthTable, inc)
         return;
     end
     
-    for i = 3, #healthTable do
+    for i = 4, #healthTable do
         local character = healthTable[i]
-        local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid.Health = 0;
-        end
+        
+        CharacterDied.Signal:Fire(character)
     end
 end
 
@@ -141,6 +142,26 @@ function HealthService.fullHealSystemFromCharacter(character)
     assert(healthTable, "Could not find health table - invalid character given.")
 
     HealthService.changeHealth(healthTable, healthTable[2]-healthTable[1])
+end
+
+function HealthService.removeHealthTable(healthTable)
+    local healths = HealthService.getHealths()
+    
+    table.remove(healths, table.find(healths, healthTable))
+end
+
+function HealthService.removeCharacter(character)
+    local healthTable = HealthService.getHealthTableFromCharacter(character)
+    if not healthTable then
+        return;
+    end
+
+    table.remove(healthTable, table.find(healthTable, character))
+
+    local isSystemDead = #healthTable <= 3
+    if isSystemDead then
+        HealthService.removeHealthTable(healthTable)
+    end
 end
 
 return HealthService

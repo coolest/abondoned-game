@@ -1,53 +1,28 @@
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
-local IS_SERVER = RunService:IsServer()
-
 local Packages = ReplicatedStorage.Packages
-
 local GoodSignal = require(Packages.goodsignal)
+local Red = require(Packages.red)
 
-local loaded = false;
 local signal = GoodSignal.new()
 
-local loadedSignal = IS_SERVER
-    and ReplicatedStorage:FindFirstChild("SERVER_LOADED")
-    or  ReplicatedStorage:FindFirstChild("CLIENT_LOADED")
+local IS_SERVER = RunService:IsServer()
+if IS_SERVER then
+    local Net = Red.Server("Death", "Death")
 
-loadedSignal.Event:Connect(function()
-    loaded = true;
-end)
+    signal:Connect(function(player)
+        Net:Fire(player, "Death")
+    end)
+else
+    local Net = Red.Client("Death")
 
-local function waitForLoading(character)
-    if not loaded then
-        repeat
-            RunService.PostSimulation:Wait()
-        until loaded
-    end
-    
-    signal:Fire(character)
-end
-
-local function onPlayerAdded(player)
-    local character = player.Character
-    if character then
-        task.spawn(waitForLoading, character)
-    end
-
-    player.CharacterAdded:Connect(waitForLoading)
-end
-
-local function onSystemsStarted()
-    Players.PlayerAdded:Connect(onPlayerAdded)
-
-    -- If players join before signal starts
-    for _, player in pairs(Players:GetPlayers()) do
-        task.spawn(onPlayerAdded, player)
-    end
+    Net:On("Death", function()
+        signal:Fire()
+    end)
 end
 
 return {
     Signal = signal,
-    SystemsStarted = onSystemsStarted
+    SystemsStarted = function() end;
 };

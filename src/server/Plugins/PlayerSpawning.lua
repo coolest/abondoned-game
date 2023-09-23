@@ -9,8 +9,10 @@ local CharacterAdded = require(Events.CharacterAdded)
 local Services = ServerScriptService.Services
 local SlotService = require(Services.SlotService)
 
+local ServerUtils = ServerScriptService.Utils
+local getPlayerData = require(ServerUtils.getPlayerData)
+
 local spawns = workspace.Spawns
-local counter = math.random(1, 2)
 
 local function spawnCharacter(character)
     if not workspace:WaitForChild(character.Name, 5) then
@@ -26,23 +28,19 @@ local function spawnCharacter(character)
     if SlotService.playerIsInSlot(player) then
         SlotService.placeCharacterInSlot(charRoot, SlotService.getPlayerSlot(player))
     else
-        counter += 1;
-        counter %= 60;
+        local data = getPlayerData(player)
+        local checkpoint = data.checkpoint
+        local checkpointSpawns = spawns:FindFirstChild(tostring(checkpoint)):GetChildren()
 
-        local spawnPart = spawns:FindFirstChild(tostring(counter%2 + 1))
+        local spawnPart = checkpointSpawns[math.random(1, #checkpointSpawns)]
         local pos, size = spawnPart.Position, spawnPart.Size
         local x_min, x_max, z_min, z_max = pos.X-size.X/2, pos.X+size.X/2, pos.Z-size.Z/2, pos.Z+size.Z/2
 
-        if RunService:IsStudio() then
-            local studioSpawn = workspace:FindFirstChild("StudioSpawn")
-            charRoot.CFrame = studioSpawn.CFrame
-        else
-            charRoot.CFrame = CFrame.new(
-                math.random(x_min, x_max),
-                pos.Y + 5,
-                math.random(z_min, z_max)
-            );
-        end
+        charRoot.CFrame = CFrame.new(
+            math.random(x_min, x_max),
+            pos.Y + 5,
+            math.random(z_min, z_max)
+        );
     end
 end
 

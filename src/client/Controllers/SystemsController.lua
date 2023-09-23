@@ -27,10 +27,9 @@ function SystemsController.Init()
     SystemsController._state = {
         systems = {}
     };
-
     
     Net:Call("RequestAll"):Then(SystemsController.loadSystems, function(err)
-        warn("Existing Systems will be out of sync with server -- could not fetch: ", err)
+        warn("Existing Systems will be out of sync with server -- could not fetch: " .. err)
     end)
 end
 
@@ -89,7 +88,7 @@ function SystemsController.Start()
 
     RunService:BindToRenderStep("FakeChainForce", Enum.RenderPriority.First.Value, function()
         local character = Player.Character
-        if not character or character:GetAttribute("Ragdoll") then
+        if not character or character:GetAttribute("Ragdoll") or character:GetAttribute("Dead") then
             return;
         end
 
