@@ -13,7 +13,7 @@ local Event = ReplicatedStorage.Events
 local CharacterAdded = require(Event.CharacterAdded)
 
 CharacterAdded.Signal:Connect(function(character)
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    local humanoid = character:WaitForChild("Humanoid", 30)
     if not humanoid then
         return;
     end
