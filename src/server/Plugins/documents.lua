@@ -35,13 +35,13 @@ local collection = Lapis.createCollection("PlayerData", {
 })
 
 local function onPlayerAdded(player)
-    documents[player] = GoodSignal.new()
+    local signal = GoodSignal.new()
+    documents[player] = signal
     documents[player].__type = "goodsignal"
     
     local ok, document = collection:load(`Player{player.UserId}`):await()
     if not ok then
-        documents[player]:Fire()
-        documents[player] = defaultData;
+        player:Kick("Could not load your data - please rejoin. If this continues to occur, roblox datastores may be down.")
 
         return;
     end
@@ -66,8 +66,9 @@ local function onPlayerAdded(player)
         end
     end
 
-    documents[player]:Fire()
     documents[player] = document
+    
+    signal:Fire()
 end
 
 local function onPlayerRemoving(player)
