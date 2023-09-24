@@ -1,4 +1,3 @@
-local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
@@ -14,7 +13,11 @@ local Red = require(Packages.red)
 local Utils = ReplicatedStorage.Utils
 local getPlayersNearPosition = require(Utils.getPlayersNearPosition)
 local getSystemsNearPosition = require(Utils.getSystemsNearPosition)
+local getSubmarinesNearPosition = require(Utils.getSubmarinesNearPosition)
 local assert = require(Utils.assert)
+
+local Helpers = ReplicatedStorage.Helpers
+local SystemHelper = require(Helpers.SystemsHelper)
 
 local Net = Red.Server("Volcano", {"Lavaball"})
 
@@ -58,20 +61,77 @@ local function spawnLavaBall(model)
                 HealthService.damageSystem(system, LAVABALL_DAMAGE*degree)
             end
 
+            local systemsAfflicted = {}
             local players = getPlayersNearPosition(lavaballPos, 10)
             for _, player in ipairs(players) do
                 local character = player.Character
-                local rootPart = character.PrimaryPart
-                RagdollService.ragdollOn(character)
+                local system = SystemHelper.getSystemFromCharacter(character)
+                if not system then
+                    continue
+                end
 
+                local charactersContainer = SystemHelper.getCharactersInSystem(system)
+                local submarine = SystemHelper.getSubmarineInSystem(system)
+                if not (charactersContainer and submarine)then
+                    continue
+                end
+
+                table.insert(systemsAfflicted, system)
+
+                local rootPart = character.PrimaryPart
                 local force = Vector3.new(0, 50, 0) + (rootPart.Position - lavaballPos).Unit * 50
+                RagdollService.ragdollOn(character)
+    
                 MovementService.knockback(character, force)
 
                 local knockbackComplete = MovementService.getSignalForKnockbackComplete(character)
                 knockbackComplete:Connect(function()
-                    task.wait(1/2)
+                    task.wait(0.5 + 1/5)
 
-                    RagdollService.ragdollOff(character)
+                    for _, character in ipairs(charactersContainer:GetChildren()) do
+                        RagdollService.ragdollOff(character)
+                    end    
+                end)
+
+                task.delay(1/5, function()
+                    MovementService.knockback(submarine, force)
+                    for _, character in ipairs(charactersContainer:GetChildren()) do
+                        RagdollService.ragdollOn(character)
+    
+                        MovementService.knockback(character, force)
+                    end
+                end)
+            end
+
+            local submarines = getSubmarinesNearPosition(lavaballPos, 10)
+            for _, submarine in ipairs(submarines) do
+                local system = SystemHelper.getSystemFromSubmarine(submarine)
+                if not system or table.find(systemsAfflicted, system) then
+                    continue
+                end
+
+                local charactersContainer = SystemHelper.getCharactersInSystem(system)
+                local characters = charactersContainer:GetChildren()
+                local focusCharacter = characters[1]
+
+                local force = Vector3.new(0, 50, 0) + (submarine.Position - lavaballPos).Unit * 50
+
+                MovementService.knockback(submarine, force)
+                task.delay(1/5, function()
+                    for _, character in ipairs(charactersContainer:GetChildren()) do
+                        RagdollService.ragdollOn(character)
+    
+                        MovementService.knockback(character, force/2)
+                    end
+
+                    local knockbackComplete = MovementService.getSignalForKnockbackComplete(focusCharacter)
+                    knockbackComplete:Connect(function()
+                        task.wait(1/2)
+    
+                        for _, character in ipairs(charactersContainer:GetChildren()) do
+                            RagdollService.ragdollOff(character)
+                        end    
+                    end)
                 end)
             end
         end)
