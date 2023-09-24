@@ -32,23 +32,23 @@ signal:Connect(function(obj)
     local character = isPlayer and obj.Character or obj
     assert(character and character:FindFirstChild("Humanoid"), "Please provide a valid character/player!")
 
+    local system = SystemsHelper.getSystemFromCharacter(character)
     local player = Players:GetPlayerFromCharacter(character)
     RagdollService.ragdollOn(character)
     character.Parent = deadContainer
     character:SetAttribute("Dead", true)
 
-    local system = SystemsHelper.getSystemFromCharacter(character)
     if system then
-        local chains = character:FindFirstChild("__chains")
-        if chains then
-            chains:Destroy()
+        local submarine = SystemsHelper.getSubmarineInSystem(system)
+        if submarine then
+            local chain = submarine:FindFirstChild(character.Name .. "-Chain")
+            chain:Destroy()
         end
 
         local charactersContainer = SystemsHelper.getCharactersInSystem(system)
         local characters = charactersContainer:GetChildren()
         if #characters == 0 then
-            -- clean up system
-            --system:Destroy()
+            system:Destroy()
         end
     end
 

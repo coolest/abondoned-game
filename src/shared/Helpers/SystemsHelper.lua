@@ -5,7 +5,7 @@ function SystemsHelper.getCharactersInSystem(system)
 end
 
 function SystemsHelper.getSubmarineInSystem(system)
-    return system:FindFirstChild("__submarine")
+    return system:FindFirstChild("__submarine") and system:FindFirstChild("__submarine").PrimaryPart
 end
 
 function SystemsHelper.getHealthBarInSystem(system)
@@ -32,7 +32,11 @@ function SystemsHelper.getSystemFromCharacter(character)
 end
 
 function SystemsHelper.getSystemFromSubmarine(submarine)
-    return submarine.Name == "__submarine" and submarine.Parent
+    local path1 = submarine.Name == "__submarine" and submarine.Parent
+    local path2 = submarine.Parent.Name == "__submarine" and submarine.Parent.Parent
+    assert(path1 or path2, "Did not provide a valid submarine object to pull from.")
+    
+    return path1 or path2
 end
 
 return SystemsHelper

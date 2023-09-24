@@ -57,8 +57,12 @@ end
 function SystemsService.Start()
     local function updateSystem(system)
         local submarine = SystemsHelper.getSubmarineInSystem(system)
-        local characters = SystemsHelper.getCharactersInSystem(system):GetChildren()
+        local charactersContainer = SystemsHelper.getCharactersInSystem(system)
+        if not (submarine and charactersContainer) then
+            return false;
+        end
 
+        local characters = charactersContainer:GetChildren()
         local velocity = Vector3.new();
         for _, character in ipairs(characters) do
             local root = character:FindFirstChild("HumanoidRootPart")
@@ -81,12 +85,17 @@ function SystemsService.Start()
         end
 
         submarine.AssemblyLinearVelocity = velocity
+        return true;
     end
 
     RunService.PreSimulation:Connect(function()
         local systems = SystemsService.getSystems();
-        for _, system in ipairs(systems) do
-            updateSystem(system)
+        for i = #systems, 1, -1 do
+            local system = systems[i]
+            
+            if not updateSystem(system) then
+                table.remove(systems, i)
+            end
         end
     end)
 end
@@ -119,23 +128,16 @@ function SystemsService.drawChains(submarine, character, amount)
     local root = character:FindFirstChild("HumanoidRootPart")
     assert(root, "Could not find root part for character!")
 
-    local chains = character:FindFirstChild("__chains")
-    if not chains then
-        chains = Instance.new("Folder")
-        chains.Name = "__chains"
-        chains.Parent = character
+    local submarineAttachment = submarine:FindFirstChild("Attachment")
+    local characterAttachment = Instance.new("Attachment")
+    characterAttachment.Parent = root;
 
-        local submarineAttachment = submarine:FindFirstChild("Attachment")
-        local characterAttachment = Instance.new("Attachment")
-        characterAttachment.Parent = root;
-
-        if submarineAttachment then
-            local chainBeam = SystemsService.newChainBeam()
-            chainBeam.Attachment0 = submarineAttachment
-            chainBeam.Attachment1 = characterAttachment
-            chainBeam.Name = character.Name .. "-Chain"
-            chainBeam.Parent = submarine
-        end
+    if submarineAttachment then
+        local chainBeam = SystemsService.newChainBeam()
+        chainBeam.Attachment0 = submarineAttachment
+        chainBeam.Attachment1 = characterAttachment
+        chainBeam.Name = character.Name .. "-Chain"
+        chainBeam.Parent = submarine
     end
 end
 
@@ -167,9 +169,11 @@ function SystemsService.buildSystem(players)
 
     local sub = SystemsService.newSubmarine();
     sub.Name = "__submarine"
-    sub.CFrame = cframe
+    sub:PivotTo(cframe)
     sub.Parent = systemContainer
-    sub:SetNetworkOwner(nil)
+    for _, subPart in ipairs(sub:GetChildren()) do
+        subPart:SetNetworkOwner(nil)
+    end
     
     local characters = {}
     for _, player in ipairs(players) do
@@ -187,7 +191,7 @@ function SystemsService.buildSystem(players)
             root.CFrame = cframe + (cframe * CFrame.Angles(0, radians, 0)).LookVector * 10
             character.Parent = charactersContainer
 
-            SystemsService.drawChains(sub, character)
+            SystemsService.drawChains(sub.PrimaryPart, character)
         end
 
         radians -= increment

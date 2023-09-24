@@ -77,12 +77,21 @@ function SystemsController.Start()
 
     RunService:BindToRenderStep("HealthGui", Enum.RenderPriority.First.Value, function()
         local systems = SystemsController.getSystems()
-        for _, system in ipairs(systems) do
+        for i = #systems, 1, -1 do
+            local system = systems[i]
+            if not system then
+                table.remove(systems, i)
+
+                continue
+            end
+
             local submarine = SystemsHelper.getSubmarineInSystem(system)
             local healthBarGui = SystemsHelper.getHealthBarInSystem(system)
-            local part = healthBarGui.Parent
+            if healthBarGui then
+                local part = healthBarGui.Parent
 
-            part.Position = submarine.Position
+                part.Position = submarine.Position
+            end
         end
     end)
 
@@ -99,7 +108,7 @@ function SystemsController.Start()
         end
 
         local system = character.Parent.Parent
-        local submarine = system:FindFirstChild("__submarine")
+        local submarine = SystemsHelper.getSubmarineInSystem(system)
         if not submarine then
             return warn("Could not find submarine")
         end

@@ -28,6 +28,10 @@ return function(pos, distance)
         end
 
         local submarine = SystemHelper.getSubmarineInSystem(system)
+        if not submarine then
+            continue
+        end
+
         local isInRange = (submarine.Position - pos).Magnitude < distance
         if isInRange then
             degree += 1
