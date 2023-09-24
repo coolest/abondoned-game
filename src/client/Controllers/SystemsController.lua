@@ -34,47 +34,6 @@ function SystemsController.Init()
 end
 
 function SystemsController.Start()
-    --[[
-    local function handleChainMovement(submarine, dt)
-        local beams = {}
-        for _, v in ipairs(submarine:GetChildren()) do
-            if v:IsA("Beam") then
-                table.insert(beams, v)
-            end
-        end
-
-        for _, beam in ipairs(beams) do
-            local mode = beam:GetAttribute("Mode")
-            if not mode then
-                beam:SetAttribute("Mode", -1)
-                mode = -1
-            end
-
-            local curve0 = beam.CurveSize0
-            local curve1 = beam.CurveSize1
-            curve0 += dt*20*mode
-            curve1 -= dt*20*mode
-
-            beam.CurveSize0 = math.clamp(curve0, -0.3, 0.3)
-            beam.CurveSize1 = math.clamp(curve1, -0.3, 0.3)
-
-            if math.abs(curve0) >= 0.3 then
-                beam:SetAttribute("Mode", mode * (-1))
-            end
-        end
-    end
-
-    RunService:BindToRenderStep("ChainMovement", Enum.RenderPriority.Character.Value, function(dt)
-        local systems = SystemsController.getSystems()
-        for _, system in ipairs(systems) do
-            local submarine = SystemsHelper.getSubmarineInSystem(system)
-            if submarine then
-                handleChainMovement(submarine, dt)
-            end
-        end
-    end)
-    ]]
-
     RunService:BindToRenderStep("HealthGui", Enum.RenderPriority.First.Value, function()
         local systems = SystemsController.getSystems()
         for i = #systems, 1, -1 do

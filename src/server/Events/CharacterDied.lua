@@ -15,10 +15,11 @@ local Red = require(Packages.red)
 local Utils = ReplicatedStorage.Utils
 local assert = require(Utils.assert)
 local getPlayersNearPosition = require(Utils.getPlayersNearPosition)
+local cleanup = require(Utils.cleanup)
 
 local signal = GoodSignal.new()
 
-local Net = Red.Server("Death", {"OnReset", "DeathEffect"})
+local Net = Red.Server("Death", {"OnReset", "DeathEffect", "RemoveSystemEffect"})
 Net:On("OnReset", function(player)
     signal:Fire(player)
 end)
@@ -48,7 +49,9 @@ signal:Connect(function(obj)
         local charactersContainer = SystemsHelper.getCharactersInSystem(system)
         local characters = charactersContainer:GetChildren()
         if #characters == 0 then
-            system:Destroy()
+            Net:FireList(getPlayersNearPosition(submarine.Position, 200), "RemoveSystemEffect", system)
+
+            cleanup(2, system)
         end
     end
 

@@ -22,6 +22,12 @@ local RagdollService = {}
 
 -- inner functions
 local function toggle(character, ragdollEnabled)
+    local root = character.PrimaryPart
+    if root then
+        root.CanCollide = not ragdollEnabled
+        root.Massless = ragdollEnabled
+    end
+
     local motors, constraints = RagdollService.getRagdollComponents(character:GetDescendants())
     for _, motor in ipairs(motors) do
         motor.Enabled = not ragdollEnabled
