@@ -132,6 +132,8 @@ function RagdollService.getRagdollComponents(desc)
 end
 
 function RagdollService.ragdollOn(character)
+    assert(character and character:FindFirstChildOfClass("Humanoid") and character.PrimaryPart, "Did not provide a valid character!")
+
     toggle(character, true)
 
     local player = Players:GetPlayerFromCharacter(character)
@@ -139,6 +141,8 @@ function RagdollService.ragdollOn(character)
 end
 
 function RagdollService.ragdollOff(character)
+    assert(character and character:FindFirstChildOfClass("Humanoid") and character.PrimaryPart, "Did not provide a valid character!")
+    
     toggle(character, false)
 
     local player = Players:GetPlayerFromCharacter(character)
