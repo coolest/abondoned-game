@@ -65,7 +65,10 @@ local function createExplosion(ball)
 
     ball:Destroy()
 
-    Emit(vfx)
+    Emit(vfx, {
+        position = primary.Position,
+        bias = 25,
+    })
 end
 
 local volcanoEmitTimestamp = os.clock();
@@ -91,7 +94,10 @@ RunService:BindToRenderStep("Volcano", Enum.RenderPriority.Last.Value, function(
     volcanoEmitTimestamp = currTime
     for _, volcano in ipairs(volcanos) do
         local attachment = volcano.Emit.Attachment
-        Emit(attachment, {position = attachment.WorldPosition})
+        Emit(attachment, {
+            position = attachment.WorldPosition,
+            bias = 100
+        })
     end
 end)
 

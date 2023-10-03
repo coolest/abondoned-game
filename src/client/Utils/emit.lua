@@ -21,9 +21,15 @@ return function(object, opts)
             return;
         end
 
+        local isAutomaticQuality = qualityLevel == 0
+        if isAutomaticQuality then
+            qualityLevel = 7
+        end
+
+        local bias = opts.bias or 0 -- represents importance of emit
         local emitPos = opts.position
         local distance = distances[qualityLevel]
-        local isOutsideRange = (root.Position - emitPos).Magnitude > distance
+        local isOutsideRange = (root.Position - emitPos).Magnitude > distance + bias
         if isOutsideRange then
             return;
         end
