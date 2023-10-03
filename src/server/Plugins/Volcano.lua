@@ -64,8 +64,8 @@ local function spawnLavaBall(model)
             local systemsAfflicted = {}
             local players = getPlayersNearPosition(lavaballPos, 10)
             for _, player in ipairs(players) do
-                local character = player.Character
-                local system = SystemHelper.getSystemFromCharacter(character)
+                local focusCharacter = player.Character
+                local system = SystemHelper.getSystemFromCharacter(focusCharacter)
                 if not system then
                     continue
                 end
@@ -78,13 +78,12 @@ local function spawnLavaBall(model)
 
                 table.insert(systemsAfflicted, system)
 
-                local rootPart = character.PrimaryPart
+                local rootPart = focusCharacter.PrimaryPart
                 local force = Vector3.new(0, 50, 0) + (rootPart.Position - lavaballPos).Unit * 50
-                RagdollService.ragdollOn(character)
-    
-                MovementService.knockback(character, force)
+                RagdollService.ragdollOn(focusCharacter)
+                MovementService.knockback(focusCharacter, force)
 
-                local knockbackComplete = MovementService.getSignalForKnockbackComplete(character)
+                local knockbackComplete = MovementService.getSignalForKnockbackComplete(focusCharacter)
                 knockbackComplete:Connect(function()
                     task.wait(0.5 + 1/5)
 
@@ -96,8 +95,11 @@ local function spawnLavaBall(model)
                 task.delay(1/5, function()
                     MovementService.knockback(submarine, force)
                     for _, character in ipairs(charactersContainer:GetChildren()) do
+                        if focusCharacter == character then
+                            continue
+                        end
+
                         RagdollService.ragdollOn(character)
-    
                         MovementService.knockback(character, force)
                     end
                 end)

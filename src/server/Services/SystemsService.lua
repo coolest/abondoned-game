@@ -63,6 +63,12 @@ function SystemsService.Start()
         end
 
         local characters = charactersContainer:GetChildren()
+        if #characters == 0 then
+            system:Destroy() -- players left or something
+
+            return false;
+        end
+
         local velocity = Vector3.new();
         for _, character in ipairs(characters) do
             local root = character:FindFirstChild("HumanoidRootPart")

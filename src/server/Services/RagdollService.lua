@@ -121,7 +121,8 @@ function RagdollService.getRagdollComponents(desc)
     local ragdollConstraints = {}
 
     for _, v in ipairs(desc) do
-        if v:IsA("Motor6D") then
+        -- we do not toggle neck motor; kills player
+        if v:IsA("Motor6D") and v.Name ~= "Neck" then
             table.insert(motors, v)
         elseif v.Name == "__ragdoll-id" then
             table.insert(ragdollConstraints, v)
@@ -132,7 +133,7 @@ function RagdollService.getRagdollComponents(desc)
 end
 
 function RagdollService.ragdollOn(character)
-    assert(character and character:FindFirstChildOfClass("Humanoid") and character.PrimaryPart, "Did not provide a valid character!")
+    assert(character and character:FindFirstChildOfClass("Humanoid") and character.PrimaryPart, `Did not provide a valid character, character is {character}`)
 
     toggle(character, true)
 
@@ -141,7 +142,7 @@ function RagdollService.ragdollOn(character)
 end
 
 function RagdollService.ragdollOff(character)
-    assert(character and character:FindFirstChildOfClass("Humanoid") and character.PrimaryPart, "Did not provide a valid character!")
+    assert(character and character:FindFirstChildOfClass("Humanoid") and character.PrimaryPart, `Did not provide a valid character, character is {character}`)
     
     toggle(character, false)
 

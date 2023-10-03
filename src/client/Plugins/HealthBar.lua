@@ -49,7 +49,10 @@ local function handleServerInfo(serverInfo)
         local currentHealth = healthInfo[1]
         local maxHealth = healthInfo[2]
         local submarine = healthInfo[3]
-    
+        if not submarine then
+            continue
+        end
+        
         local system = SystemHelper.getSystemFromSubmarine(submarine)
         local healthBarGui = SystemHelper.getHealthBarInSystem(system)
     
