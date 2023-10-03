@@ -1,11 +1,15 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
+local Client = script.Parent.Parent
+local ClientUtils = Client.Utils
+local Emit = require(ClientUtils.emit)
+
 local Packages = ReplicatedStorage.Packages
 local Red = require(Packages.red)
 
-local Utils = ReplicatedStorage.Utils
-local Emit = require(Utils.emit)
+local Helpers = ReplicatedStorage.Helpers
+local SpecialParts = require(Helpers.SpecialParts)
 
 local Controllers = script.Parent.Parent.Controllers
 local IndicatorController = require(Controllers.IndicatorController)
@@ -17,6 +21,7 @@ local lavaball = ReplicatedStorage._GAME_ITEMS.Lavaball
 local explosion = ReplicatedStorage._GAME_ITEMS.VFX.Explosion
 
 local lavaballs = {}
+local volcanos = SpecialParts.getVolcanos()
 
 local function spawnLavaBall(info)
     local arc = info.arc
@@ -63,7 +68,8 @@ local function createExplosion(ball)
     Emit(vfx)
 end
 
-RunService:BindToRenderStep("Lavaballs", Enum.RenderPriority.Last.Value, function(dt)
+local volcanoEmitTimestamp = os.clock();
+RunService:BindToRenderStep("Volcano", Enum.RenderPriority.Last.Value, function(dt)
     for i = #lavaballs, 1, -1 do
         local lavaballWrapper = lavaballs[i]
         local updateHandler = lavaballWrapper.handler
@@ -74,6 +80,18 @@ RunService:BindToRenderStep("Lavaballs", Enum.RenderPriority.Last.Value, functio
             local model = lavaballWrapper.model
             task.spawn(createExplosion, model)
         end
+    end
+
+    local currTime = os.clock()
+    local hasEnoughedTimeElapsed = currTime - volcanoEmitTimestamp > 1/4
+    if not hasEnoughedTimeElapsed then
+        return;
+    end
+
+    volcanoEmitTimestamp = currTime
+    for _, volcano in ipairs(volcanos) do
+        local attachment = volcano.Emit.Attachment
+        Emit(attachment, {position = attachment.WorldPosition})
     end
 end)
 

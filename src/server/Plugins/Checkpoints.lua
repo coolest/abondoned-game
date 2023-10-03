@@ -11,8 +11,9 @@ local patch = require(Utils.patch)
 
 local Helpers = ReplicatedStorage.Helpers
 local SystemsHelper = require(Helpers.SystemsHelper)
+local SpecialParts = require(Helpers.SpecialParts)
 
-local checkpoints = {}
+local checkpoints = SpecialParts.getCheckpoints()
 
 local function createCheckpointTriggerHandler(checkpoint)
     local checkpointNum = checkpoint:GetAttribute("Checkpoint")
@@ -28,8 +29,8 @@ local function createCheckpointTriggerHandler(checkpoint)
             return;
         end
 
-        local characters = SystemsHelper.getCharactersInSystem(system)
-        for _, character in ipairs(characters) do
+        local charactersContrainer = SystemsHelper.getCharactersInSystem(system)
+        for _, character in ipairs(charactersContrainer:GetChildren()) do
             local player = Players:GetPlayerFromCharacter(character)
             if not player then
                 continue

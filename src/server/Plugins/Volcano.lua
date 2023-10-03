@@ -18,22 +18,19 @@ local assert = require(Utils.assert)
 
 local Helpers = ReplicatedStorage.Helpers
 local SystemHelper = require(Helpers.SystemsHelper)
+local SpecialParts = require(Helpers.SpecialParts)
 
 local Net = Red.Server("Volcano", {"Lavaball"})
-
-local map = workspace
 
 local LAVABALL_DAMAGE = 50;
 
 local volcanos = {}
-for _, v in ipairs(map:GetChildren()) do
-    if v.Name == "Volcano" then
-        table.insert(volcanos, {
-            model = v;
-            spawnsPerSecond = 4;
-            lastSpawn = os.clock();
-        })
-    end
+for _, v in ipairs(SpecialParts.getVolcanos()) do
+    table.insert(volcanos, {
+        model = v;
+        spawnsPerSecond = 4;
+        lastSpawn = os.clock();
+    })
 end
 
 local function spawnLavaBall(model)

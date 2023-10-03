@@ -13,6 +13,7 @@ local CharacterDied = require(Events.CharacterDied)
 
 local Helpers = ReplicatedStorage.Helpers
 local SystemsHelper = require(Helpers.SystemsHelper)
+local SpecialParts = require(Helpers.SpecialParts)
 
 local Utils = ReplicatedStorage.Utils
 local getPlayersNearPosition = require(Utils.getPlayersNearPosition)
@@ -53,7 +54,7 @@ function HealthService.Start()
         HealthService.fullHealSystemFromCharacter(character)
     end
 
-    local healthPads = {}
+    local healthPads = SpecialParts.getHealthPads()
     for _, healthPad in ipairs(healthPads) do
         healthPad.Touched:Connect(onPartTouchedHealthPad)
     end

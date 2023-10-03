@@ -1,13 +1,14 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Client = script.Parent.Parent
+local ClientUtils = Client.Utils
+local Emit = require(ClientUtils.emit)
+
 local assets = workspace.Assets
 
 local GameItems = ReplicatedStorage._GAME_ITEMS
 local jumpVFX = GameItems.VFX.Jump
 local jumpBubblesVFX = GameItems.VFX.JumpBubbles
-
-local Utils = ReplicatedStorage.Utils
-local Emit = require(Utils.emit)
 
 local Event = ReplicatedStorage.Events
 local CharacterAdded = require(Event.CharacterAdded)
@@ -31,7 +32,9 @@ CharacterAdded.Signal:Connect(function(character)
             vfx.Anchored = true;
             vfx.Parent = assets
 
-            Emit(vfx)
+            Emit(vfx, root and {
+                position = root.Position
+            })
 
             local bubbles = jumpBubblesVFX:Clone()      
             bubbles.CFrame = root.CFrame - Vector3.new(0, humanoid.HipHeight, 0)
