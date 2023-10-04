@@ -38,10 +38,11 @@ function SlotService.Init()
         local slotRoots = container:GetChildren();
 
         SlotService._state.slots[checkpoint] = {}
+        SlotService._state.roots[checkpoint] = {}
 
         for _, slotRoot in ipairs(slotRoots) do
             table.insert(SlotService._state.slots[checkpoint]   , {})
-            table.insert(SlotService._state.roots               , slotRoot)
+            table.insert(SlotService._state.roots[checkpoint]   , slotRoot)
         end
     end
 
@@ -61,7 +62,7 @@ function SlotService.Init()
         end
     end
 
-    local roots = SlotService.getSlotRoots()
+    local roots = SlotService.getAllSlotRoots()
     for _, root in ipairs(roots) do
         local onTouched = createSlotTouchedCallback(tonumber(root.Name))
         root.Touched:Connect(onTouched)
@@ -76,17 +77,30 @@ function SlotService.getSlots(checkpoint)
     return SlotService._state.slots[checkpoint]
 end
 
-function SlotService.getSlotRoots() 
-    return SlotService._state.roots 
+function SlotService.getAllSlotRoots() 
+    local slots = {}
+    for _, checkpointRoots in ipairs(SlotService.getSlotRoots()) do
+        for _, root in ipairs(checkpointRoots) do
+            table.insert(slots, root)
+        end
+    end
+
+    return slots;
 end
 
-function SlotService.getSlotRoot(slot)
+function SlotService.getSlotRoots()
+    return SlotService._state.roots
+end
+
+function SlotService.getSlotRoot(checkpoint, slot)
     if typeof(slot) == "number" then
         slot = tostring(slot)
     end
 
-    for _, root in ipairs(SlotService.getSlotRoots()) do
-        if root.name == slot then
+    local roots = SlotService.getSlotRoots()
+    local checkpointRoots = roots[checkpoint]
+    for _, root in ipairs(checkpointRoots) do
+        if root.Name == slot then
             return root;
         end
     end
@@ -120,7 +134,7 @@ function SlotService.updateSlotCount(checkpoint, slot)
         slot = tonumber(slot)
     end
 
-    local slotRoot = SlotService.getSlotRoot(slot)
+    local slotRoot = SlotService.getSlotRoot(checkpoint, slot)
     local counterLabel = slotRoot:FindFirstChild("CounterLabel", true)
     local playersLabel = slotRoot:FindFirstChild("PlayersLabel", true)
     local amount = #SlotService.getSlots(checkpoint)[slot]
@@ -136,23 +150,23 @@ function SlotService.updateSlotCount(checkpoint, slot)
     end
 end
 
-function SlotService.placeCharacterInSlot(charRoot, slot)
+function SlotService.placeCharacterInSlot(charRoot, checkpoint, slot)
     assert(charRoot and charRoot:IsA("Instance") and charRoot:IsA("BasePart"), "Need to provide a valid root of type BasePart for character")
     if type(slot) == "number" then
         slot = tostring(slot)
     end
 
-    local slotRoot = SlotService.getSlotRoot(slot)
+    local slotRoot = SlotService.getSlotRoot(checkpoint, slot)
     charRoot.CFrame = slotRoot.CFrame - slotRoot.CFrame.LookVector * 5
 end
 
-function SlotService.removeCharacterFromSlot(charRoot, slot)
+function SlotService.removeCharacterFromSlot(charRoot, checkpoint, slot)
     assert(charRoot and charRoot:IsA("Instance") and charRoot:IsA("BasePart"), "Need to provide a valid root of type BasePart for character")
     if type(slot) == "number" then
         slot = tostring(slot)
     end
 
-    local slotRoot = SlotService.getSlotRoot(slot)
+    local slotRoot = SlotService.getSlotRoot(checkpoint, slot)
     charRoot.CFrame = slotRoot.CFrame + slotRoot.CFrame.LookVector * 10
 end
 
@@ -179,7 +193,7 @@ function SlotService.tryJoin(player, slot)
     local character = player.Character
     local root = character and character:FindFirstChild("HumanoidRootPart")
     if root then
-        SlotService.placeCharacterInSlot(root, slot)
+        SlotService.placeCharacterInSlot(root, checkpoint, slot)
         SlotService.updateSlotCount(checkpoint, slot)
 
         Net:Fire(player, "Join")
@@ -206,7 +220,7 @@ function SlotService.tryLeave(player)
         local character = player.Character
         local root = character and character:FindFirstChild("HumanoidRootPart")
         if root then
-            SlotService.removeCharacterFromSlot(root, slot)
+            SlotService.removeCharacterFromSlot(root, checkpoint, slot)
         end
 
         table.remove(slots[slotNumber], table.find(slots[slotNumber], player))
