@@ -51,7 +51,10 @@ function HealthService.Start()
             return;
         end
 
-        HealthService.fullHealSystemFromCharacter(character)
+        local system = SystemsHelper.getSystemFromCharacter(character)
+        if system then
+            HealthService.fullHealSystemFromCharacter(character)
+        end
     end
 
     local healthPads = SpecialParts.getHealthPads()

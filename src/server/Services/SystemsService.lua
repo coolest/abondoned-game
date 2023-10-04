@@ -3,6 +3,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 
+local Services = ServerScriptService.Services
+local CollisionService
+local addToCharactersCG
+local addToSubmarineCG
+
 local Helpers = ReplicatedStorage.Helpers
 local SystemsHelper = require(Helpers.SystemsHelper)
 
@@ -52,6 +57,10 @@ function SystemsService.Init()
     Net:On("RequestAll", function()
         return SystemsService.getSystems()
     end)
+
+    CollisionService = require(Services.CollisionService)
+    addToCharactersCG = CollisionService.addToCollisionGroup("Characters")
+    addToSubmarineCG = CollisionService.addToCollisionGroup("Submarine")
 end
 
 function SystemsService.Start()
@@ -180,12 +189,15 @@ function SystemsService.buildSystem(players)
     for _, subPart in ipairs(sub:GetChildren()) do
         subPart:SetNetworkOwner(nil)
     end
+    addToSubmarineCG(sub)
     
     local characters = {}
     for _, player in ipairs(players) do
         local character = player.Character
         if character then
             table.insert(characters, character)
+
+            addToCharactersCG(character)
         end
     end
 

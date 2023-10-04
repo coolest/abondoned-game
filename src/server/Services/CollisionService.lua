@@ -1,7 +1,4 @@
 local PhysicsService = game:GetService("PhysicsService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local CharacterAdded = require(ReplicatedStorage.Events.CharacterAdded)
 
 local CollisionService = {}
 
@@ -9,19 +6,20 @@ function CollisionService.Init()
     PhysicsService:RegisterCollisionGroup("Characters")
     PhysicsService:RegisterCollisionGroup("Ragdoll")
     PhysicsService:RegisterCollisionGroup("Submarine")
+    PhysicsService:RegisterCollisionGroup("Boundary")
 
+    PhysicsService:CollisionGroupSetCollidable("Characters", "Characters", false)
+    PhysicsService:CollisionGroupSetCollidable("Boundary", "Characters", false)
+    PhysicsService:CollisionGroupSetCollidable("Boundary", "Submarine", false)
     PhysicsService:CollisionGroupSetCollidable("Characters", "Ragdoll", false)
     PhysicsService:CollisionGroupSetCollidable("Submarine", "Ragdoll", false)
-
-    local addToCharactersCG = CollisionService.addToCollisionGroup("Characters")
-    CharacterAdded.Signal:Connect(addToCharactersCG)
-
-    local addToChainsCG = CollisionService.addToCollisionGroup("Chains")
-    addToChainsCG(ReplicatedStorage._GAME_ITEMS.Chain)
 end
 
 function CollisionService.Start()
+    local addToBoundaryCG = CollisionService.addToCollisionGroup("Boundary")
 
+    local boundaries = workspace.Boundaries
+    addToBoundaryCG(boundaries)
 end
 
 function CollisionService.addToCollisionGroup(collisionGroup)

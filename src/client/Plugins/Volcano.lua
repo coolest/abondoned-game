@@ -4,6 +4,7 @@ local RunService = game:GetService("RunService")
 local Client = script.Parent.Parent
 local ClientUtils = Client.Utils
 local Emit = require(ClientUtils.emit)
+local isCharacterInComputationDistance = require(ClientUtils.isCharacterInComputationDistance)
 
 local Packages = ReplicatedStorage.Packages
 local Red = require(Packages.red)
@@ -27,8 +28,12 @@ local function spawnLavaBall(info)
     local arc = info.arc
     local startPos = info.startPos
     local endPos = info.endPos
-
+    
     IndicatorController.createHazardIndicator(endPos)
+
+    if not isCharacterInComputationDistance(endPos, 100) then
+        return;
+    end
     
     task.wait(1)
 
@@ -96,7 +101,7 @@ RunService:BindToRenderStep("Volcano", Enum.RenderPriority.Last.Value, function(
         local attachment = volcano.Emit.Attachment
         Emit(attachment, {
             position = attachment.WorldPosition,
-            bias = 100
+            bias = 125
         })
     end
 end)
