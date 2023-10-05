@@ -60,7 +60,7 @@ end
 function IndicatorController.addToHazardIndicatorBorders(obj)
     assert(obj and obj:IsA("ImageLabel"), "Border needs to be a valid ImageLabel")
 
-    table.insert(IndicatorController._state.hazardIndicatorBorders, obj)
+    table.insert(IndicatorController.getHazardIndicatorBorders(), obj)
 end
 
 function IndicatorController.addToHazardCountdownLabels(obj)

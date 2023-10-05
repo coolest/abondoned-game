@@ -198,6 +198,8 @@ function SystemsService.buildSystem(players)
             table.insert(characters, character)
 
             addToCharactersCG(character)
+
+            character:SetAttribute("system", name)
         end
     end
 
