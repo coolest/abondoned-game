@@ -25,20 +25,9 @@ print(("/"):rep(50))
 print("[CLIENT LOADING]")
 print(("/"):rep(50))
 
-local start = os.clock()
-
-for _, src in ipairs(PlayerScripts:WaitForChild("Plugins"):GetChildren()) do
-    local ok, err = pcall(require, src)
-    if not ok then
-        error(string.format("Issue starting plugin, %s:\n%s", src.Name, err))
-    end
-end
-
-prettyPrint("Loaded plugins in: ", os.clock()-start, "s")
-
 --
 
-start = os.clock()
+local start = os.clock()
 
 local controllers = {}
 for _, src in ipairs(PlayerScripts:WaitForChild("Controllers"):GetChildren()) do
@@ -68,7 +57,18 @@ end
 prettyPrint("Started controllers in: ", os.clock()-start, "s")
 
 --
+start = os.clock()
 
+for _, src in ipairs(PlayerScripts:WaitForChild("Plugins"):GetChildren()) do
+    local ok, err = pcall(require, src)
+    if not ok then
+        error(string.format("Issue starting plugin, %s:\n%s", src.Name, err))
+    end
+end
+
+prettyPrint("Loaded plugins in: ", os.clock()-start, "s")
+
+--
 start = os.clock()
 
 local Events = {}

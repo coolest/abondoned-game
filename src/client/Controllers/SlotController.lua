@@ -7,6 +7,7 @@ local gui = Player.PlayerGui.Gui
 
 local Packages = ReplicatedStorage.Packages
 local Red = require(Packages.red)
+local goodsignal = require(Packages.goodsignal)
 
 local Net = Red.Client("Slot")
 
@@ -15,16 +16,23 @@ local SlotController = {}
 function SlotController.Init()
     local slotGui = gui.Slots
 
+    local onJoin = goodsignal.new()
+    local onLeave = goodsignal.new()
+
     Net:On("Join", function()
         SlotController.toggleSlotGuis(true)
+        onJoin:Fire()
     end)
     Net:On("Start", function()
         SlotController.toggleSlotGuis(false)
     end)
 
-    SlotController._state = {}
     SlotController.SLOT_GUI = slotGui
-
+    SlotController._state = {
+        onJoin = onJoin;
+        onLeave = onLeave
+    };
+    
     slotGui.Start.MouseButton1Click:Connect(function()
         SlotController.toggleSlotGuis(false)
 
@@ -35,6 +43,7 @@ function SlotController.Init()
     end)
 
     slotGui.Leave.MouseButton1Click:Connect(function()
+        onLeave:Fire()
         SlotController.toggleSlotGuis(false)
 
         local ok = Net:Fire("Leave")
@@ -54,6 +63,14 @@ end
 
 function SlotController.toggleSlotGuis(visible)
     SlotController.getSlotGui().Visible = visible
+end
+
+function SlotController.getLeaveSignal()
+    return SlotController._state.onLeave
+end
+
+function SlotController.getJoinSignal()
+    return SlotController._state.onJoin
 end
 
 return SlotController
