@@ -50,7 +50,7 @@ start = os.clock()
 for name, controller in pairs(controllers) do
     local ok, err = pcall(controller.Start)
     if not ok then
-        error(string.format("Issue starting controller, %s, %s", err))
+        error(string.format("Issue starting controller, %s, %s", name, err))
     end
 end
 
